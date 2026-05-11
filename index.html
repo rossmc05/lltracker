@@ -327,6 +327,34 @@ border: none; margin: 16px 0;
 border-top: 2px dashed #444; opacity: 0.5;
 }
 
+/* DIAMOND */
+.diamond-wrap { max-width: 500px; margin: 0 auto; }
+.diamond-controls { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.diamond-select {
+flex: 1; background: #1c1c1e; border: 1px solid #444; color: #F5F0E8;
+border-radius: 3px; padding: 8px 10px;
+font-family: ‘Helvetica Neue’, Arial, sans-serif; font-size: 13px; cursor: pointer; min-width: 120px;
+}
+.diamond-svg-wrap {
+background: #1a3a1a;
+background-image: radial-gradient(ellipse at center, #1e4a1e 0%, #0f2a0f 100%);
+border-radius: 8px; padding: 16px; margin-bottom: 16px;
+border: 2px solid #2a4a2a; position: relative;
+}
+.batting-side {
+background: #1c1c1e; border: 1px solid #333; border-radius: 6px;
+padding: 12px; margin-top: 12px;
+}
+.batting-row {
+display: flex; align-items: center; gap: 10px;
+padding: 5px 8px; border-radius: 3px; margin-bottom: 3px;
+font-size: 13px;
+}
+.batting-row:nth-child(odd) { background: #222; }
+.bat-num { color: #E81828; font-weight: 700; width: 20px; text-align: right; font-family: ‘Arial Narrow’,‘Helvetica Neue’,Arial,sans-serif; }
+.bat-name { color: #F5F0E8; flex: 1; }
+.bat-pos { color: #666; font-size: 11px; font-family: ‘Arial Narrow’,‘Helvetica Neue’,Arial,sans-serif; }
+
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 @media(max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
 </style>
@@ -352,6 +380,7 @@ border-top: 2px dashed #444; opacity: 0.5;
     <button class="tab-btn" onclick="showTab('prefs')">★ Prefs</button>
     <button class="tab-btn" onclick="showTab('stats')">📊 Stats</button>
     <button class="tab-btn" onclick="showTab('history')">📋 History</button>
+    <button class="tab-btn" onclick="showTab('diamond')">💎 Diamond</button>
   </div>
 </div>
 
@@ -361,6 +390,7 @@ border-top: 2px dashed #444; opacity: 0.5;
   <div id="tab-prefs" style="display:none"></div>
   <div id="tab-stats" style="display:none"></div>
   <div id="tab-history" style="display:none"></div>
+  <div id="tab-diamond" style="display:none"></div>
 </div>
 
 <!-- MODAL -->
@@ -536,7 +566,7 @@ function showToast(msg, color) {
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
-const TAB_NAMES = ["lineup","batting","prefs","stats","history"];
+const TAB_NAMES = ["lineup","batting","prefs","stats","history","diamond"];
 let activeTab = "lineup";
 function showTab(tab) {
   activeTab = tab;
@@ -737,89 +767,77 @@ function renderLineupTab() {
   const dateStr = info.date ? new Date(info.date + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '';
   const opponentStr = info.opponent || '';
 
-  let html=`
-  <div class="game-banner">
-    <div>
-      <div class="game-num">GAME ${state.game}${opponentStr ? ` — vs. ${opponentStr}` : ''}</div>
-      <div class="game-meta">${dateStr ? dateStr + ' · ' : ''}${state.inning-1} inning(s) played</div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <button class="btn btn-cancel" style="font-size:10px;padding:6px 12px" onclick="editGameInfo()">✎ Details</button>
-      <button class="btn btn-red" onclick="newGame()">End Game ${state.game}</button>
-    </div>
-  </div>
-  <div class="inning-header">
-    <div class="inning-display">
-      <span class="inning-label">INNING</span>
-      <span class="inning-val">${state.inning}</span>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-navy" onclick="autoAssign()">⚡ Auto-Assign</button>
-      <button class="btn btn-red" onclick="commitInning()" ${ready?'':'disabled'}>✓ Commit Inning</button>
-    </div>
-  </div>
-  <div class="two-col"><div>
-  <div class="label">Field Positions</div>`;
+  const gameTitle = 'GAME '+state.game+(opponentStr?' — vs. '+opponentStr:'');
+  const gameMeta = (dateStr?dateStr+' · ':'')+( state.inning-1)+' inning(s) played';
+
+  let html='<div class="game-banner"><div>'
+    +'<div class="game-num">'+gameTitle+'</div>'
+    +'<div class="game-meta">'+gameMeta+'</div></div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+    +'<button class="btn btn-cancel" style="font-size:10px;padding:6px 12px" onclick="editGameInfo()">✎ Details</button>'
+    +'<button class="btn btn-red" onclick="newGame()">End Game '+state.game+'</button>'
+    +'</div></div>'
+    +'<div class="inning-header"><div class="inning-display">'
+    +'<span class="inning-label">INNING</span><span class="inning-val">'+state.inning+'</span></div>'
+    +'<div class="btn-row">'
+    +'<button class="btn btn-navy" onclick="autoAssign()">⚡ Auto-Assign</button>'
+    +'<button class="btn btn-red" onclick="commitInning()" '+(ready?'':'disabled')+'>✓ Commit Inning</button>'
+    +'</div></div>'
+    +'<div class="two-col"><div><div class="label">Field Positions</div>';
 
   POSITIONS.forEach(pos=>{
     const player=state.lineup[pos]||"";
     const pref=player?(state.prefs[player]?.[pos]||"neutral"):"neutral";
     const isPreferred=pref==="preferred", isAvoid=pref==="avoid";
     const borderColor=isPreferred?"#E81828":isAvoid?"#444":"#3a3a3e";
-    html+=`
-    <div class="pos-row" style="border-left-color:${borderColor}">
-      <div class="pos-tag">${pos}</div>
-      <div class="pos-name">${POS_NAMES[pos]}</div>
-      <select class="pos-select" onchange="setPos('${pos}',this.value)">
-        <option value="">— open —</option>
-        ${state.players.filter(p=>!state.absent.includes(p)).map(p=>{
-          const taken=assigned.includes(p)&&state.lineup[pos]!==p;
-          const pp=state.prefs[p]?.[pos]||"neutral";
-          const ico=pp==="preferred"?" ★":pp==="avoid"?" ✗":"";
-          return `<option value="${p}" ${player===p?"selected":""} ${taken?"disabled":""}>${p}${ico}</option>`;
-        }).join("")}
-      </select>
-      ${isPreferred?`<span style="color:#E81828;font-size:14px">★</span>`:""}
-    </div>`;
+    let opts='<option value="">— open —</option>';
+    state.players.filter(p=>!state.absent.includes(p)).forEach(p=>{
+      const taken=assigned.includes(p)&&state.lineup[pos]!==p;
+      const pp=state.prefs[p]?.[pos]||"neutral";
+      const ico=pp==="preferred"?" ★":pp==="avoid"?" ✗":"";
+      opts+='<option value="'+p+'" '+(player===p?"selected":"")+" "+(taken?"disabled":"")+">"+p+ico+"</option>";
+    });
+    html+='<div class="pos-row" style="border-left-color:'+borderColor+'">'
+      +'<div class="pos-tag">'+pos+'</div>'
+      +'<div class="pos-name">'+POS_NAMES[pos]+'</div>'
+      +'<select class="pos-select" onchange="setPos(\''+pos+'\',this.value)">'+opts+'</select>'
+      +(isPreferred?'<span style="color:#E81828;font-size:14px">★</span>':'')
+      +'</div>';
   });
 
-  html+=`</div><div>
-  <div class="label">Bench (${unassigned.length})</div>`;
+  html+='</div><div><div class="label">Bench ('+unassigned.length+')</div>';
   if(unassigned.length===0){
-    html+=`<div style="color:#E81828;text-align:center;padding:16px;font-size:13px;letter-spacing:1px">ALL PLAYERS ASSIGNED ✓</div>`;
+    html+='<div style="color:#E81828;text-align:center;padding:16px;font-size:13px;letter-spacing:1px">ALL PLAYERS ASSIGNED ✓</div>';
   } else {
     unassigned.forEach(p=>{
-      html+=`<div class="bench-item"><span>${p}</span><span style="color:#888;font-size:11px">${totalInnings(p)} inn.</span></div>`;
+      html+='<div class="bench-item"><span>'+p+'</span><span style="color:#888;font-size:11px">'+totalInnings(p)+' inn.</span></div>';
     });
   }
 
-  html+=`
-  <hr class="stitch" style="margin:14px 0">
-  <div class="label">Absent This Game</div>
-  ${state.players.map(p => {
-    const isAbsent = state.absent.includes(p);
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;margin-bottom:4px;background:#1c1c1e;border-radius:3px;border:1px solid ${isAbsent?'#E81828':'#3a3a3e'}">
-      <span style="color:${isAbsent?'#E81828':'#d0c8b8'};font-size:13px;${isAbsent?'text-decoration:line-through;opacity:0.6':''}">${p}</span>
-      <button onclick="toggleAbsent('${p}')" style="background:${isAbsent?'#5a0910':'#2a2a2e'};border:1px solid ${isAbsent?'#E81828':'#444'};color:${isAbsent?'#E81828':'#888'};border-radius:3px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px">
-        ${isAbsent?'ABSENT ✓':'MARK ABSENT'}
-      </button>
-    </div>`;
-  }).join("")}`;
+  html+='<hr class="stitch" style="margin:14px 0"><div class="label">Absent This Game</div>';
+  state.players.forEach(p=>{
+    const isAbsent=state.absent.includes(p);
+    const bc=isAbsent?'#E81828':'#3a3a3e';
+    const tc=isAbsent?'#E81828':'#d0c8b8';
+    const td=isAbsent?'text-decoration:line-through;opacity:0.6':'';
+    const bbg=isAbsent?'#5a0910':'#2a2a2e';
+    const bbc=isAbsent?'#E81828':'#444';
+    const btc=isAbsent?'#E81828':'#888';
+    const blabel=isAbsent?'ABSENT ✓':'MARK ABSENT';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;margin-bottom:4px;background:#1c1c1e;border-radius:3px;border:1px solid '+bc+'">'
+      +'<span style="color:'+tc+';font-size:13px;'+td+'">'+p+'</span>'
+      +'<button onclick="toggleAbsent(\''+p+'\')" style="background:'+bbg+';border:1px solid '+bbc+';color:'+btc+';border-radius:3px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px">'+blabel+'</button>'
+      +'</div>';
+  });
 
-  html+=`
-  <hr class="stitch">
-  <div class="label">Roster</div>
-  <div class="input-row">
-    <input id="new-player-input" class="text-input" placeholder="Add player..." onkeydown="if(event.key==='Enter')addPlayer()">
-    <button class="btn btn-red" onclick="addPlayer()">Add</button>
-  </div>
-  ${state.players.map(p=>`
-    <div class="roster-item">
-      <span style="color:#d0c8b8">${p}</span>
-      <button class="rm-btn" onclick="removePlayer('${p}')">×</button>
-    </div>`).join("")}
-  </div></div>`;
-
+  html+='<hr class="stitch"><div class="label">Roster</div>'
+    +'<div class="input-row"><input id="new-player-input" class="text-input" placeholder="Add player..." onkeydown="if(event.key===\'Enter\')addPlayer()">'
+    +'<button class="btn btn-red" onclick="addPlayer()">Add</button></div>';
+  state.players.forEach(p=>{
+    html+='<div class="roster-item"><span style="color:#d0c8b8">'+p+'</span>'
+      +'<button class="rm-btn" onclick="removePlayer(\''+p+'\')">×</button></div>';
+  });
+  html+='</div></div>';
   document.getElementById("tab-lineup").innerHTML=html;
 }
 
@@ -828,59 +846,45 @@ function renderBattingTab() {
   const committed=state.battingCommitted;
   const order=committed?state.battingOrder:state.pendingBatting;
 
-  let html=`
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-    <div>
-      <div class="label" style="margin:0;border:none">Batting Order — Game ${state.game}</div>
-      <div style="font-size:11px;color:#888;margin-top:4px;letter-spacing:1px">
-        ${committed?"Order locked for this game.":"Arrange order then commit. Rotates each new game."}
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      ${committed
-        ?`<span class="batting-committed-badge">🔒 LOCKED</span>
-          <button class="btn btn-navy" onclick="editBattingOrder()">Edit</button>`
-        :`<button class="btn btn-navy" onclick="commitBattingOrder()">🔒 Lock Order</button>`}
-    </div>
-  </div>
-  <div class="batting-order-list">`;
+  let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px"><div>'
+    +'<div class="label" style="margin:0;border:none">Batting Order — Game '+state.game+'</div>'
+    +'<div style="font-size:11px;color:#888;margin-top:4px;letter-spacing:1px">'
+    +(committed?"Order locked for this game.":"Arrange order then commit. Rotates each new game.")+'</div></div>'
+    +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+    +(committed?'<span class="batting-committed-badge">🔒 LOCKED</span><button class="btn btn-navy" onclick="editBattingOrder()">Edit</button>'
+               :'<button class="btn btn-navy" onclick="commitBattingOrder()">🔒 Lock Order</button>')
+    +'</div></div><div class="batting-order-list">';
 
   order.forEach((player,idx)=>{
     if(committed){
-      html+=`
-      <div class="batting-slot" style="border-left-color:#E81828">
-        <div class="batting-num">${idx+1}</div>
-        <div class="batting-name">${player}</div>
-      </div>`;
+      html+='<div class="batting-slot" style="border-left-color:#E81828">'
+        +'<div class="batting-num">'+(idx+1)+'</div>'
+        +'<div class="batting-name">'+player+'</div></div>';
     } else {
-      html+=`
-      <div class="batting-slot">
-        <div class="batting-num">${idx+1}</div>
-        <select class="batting-select" onchange="setBatterAtSlot(${idx},this.value)">
-          ${order.map(p=>`<option value="${p}" ${p===player?"selected":""}>${p}</option>`).join("")}
-        </select>
-        <div class="batting-arrows">
-          <button class="arrow-btn" onclick="moveBatter(${idx},-1)" ${idx===0?"disabled":""}>▲</button>
-          <button class="arrow-btn" onclick="moveBatter(${idx},1)" ${idx===order.length-1?"disabled":""}>▼</button>
-        </div>
-      </div>`;
+      let opts='';
+      order.forEach(p=>{ opts+='<option value="'+p+'" '+(p===player?"selected":"")+'>'+p+'</option>'; });
+      html+='<div class="batting-slot">'
+        +'<div class="batting-num">'+(idx+1)+'</div>'
+        +'<select class="batting-select" onchange="setBatterAtSlot('+idx+',this.value)">'+opts+'</select>'
+        +'<div class="batting-arrows">'
+        +'<button class="arrow-btn" onclick="moveBatter('+idx+',-1)" '+(idx===0?"disabled":"")+'>▲</button>'
+        +'<button class="arrow-btn" onclick="moveBatter('+idx+',1)" '+(idx===order.length-1?"disabled":"")+'>▼</button>'
+        +'</div></div>';
     }
   });
 
-  html+=`</div>`;
+  html+='</div>';
 
   if(committed&&state.battingOrder.length>0){
     const nextOrder=[state.battingOrder[state.battingOrder.length-1],...state.battingOrder.slice(0,-1)];
-    html+=`
-    <hr class="stitch">
-    <div class="label">Next Game Order <span style="color:#888;font-size:9px;letter-spacing:1px">(preview)</span></div>
-    <div style="display:flex;flex-wrap:wrap;gap:5px">
-      ${nextOrder.map((p,i)=>`
-        <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:#2a2a2e;border-radius:2px;border:1px solid #3a3a3e;font-size:12px">
-          <span style="color:#E81828;font-weight:700;min-width:16px;font-family:'Oswald',Arial,sans-serif">${i+1}</span>
-          <span style="color:#888">${p}</span>
-        </div>`).join("")}
-    </div>`;
+    html+='<hr class="stitch"><div class="label">Next Game Order <span style="color:#888;font-size:9px;letter-spacing:1px">(preview)</span></div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:5px">';
+    nextOrder.forEach((p,i)=>{
+      html+='<div style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:#2a2a2e;border-radius:2px;border:1px solid #3a3a3e;font-size:12px">'
+        +'<span style="color:#E81828;font-weight:700;min-width:16px">'+(i+1)+'</span>'
+        +'<span style="color:#888">'+p+'</span></div>';
+    });
+    html+='</div>';
   }
 
   document.getElementById("tab-batting").innerHTML=html;
@@ -888,30 +892,22 @@ function renderBattingTab() {
 
 // ── RENDER PREFS ──────────────────────────────────────────────────────────────
 function renderPrefsTab() {
-  let html=`
-  <div class="label" style="margin-bottom:8px">Position Preferences — tap to cycle</div>
-  <div style="display:flex;gap:16px;font-size:12px;margin-bottom:14px;flex-wrap:wrap">
-    <span style="color:#E81828">★ Preferred</span>
-    <span style="color:#888">✗ Avoid</span>
-    <span style="color:#444">○ Neutral</span>
-  </div>
-  <div class="prefs-scroll"><table>
-    <thead><tr>
-      <th class="player-col">Player</th>
-      ${POSITIONS.map(p=>`<th>${p}</th>`).join("")}
-    </tr></thead>
-    <tbody>
-    ${state.players.map(player=>`
-      <tr>
-        <td class="player-col">${player}</td>
-        ${POSITIONS.map(pos=>{
-          const pref=state.prefs[player]?.[pos]||"neutral";
-          const bc=PREF_COLOR[pref], tc=PREF_TEXT[pref];
-          return `<td><button class="pref-btn" style="border-color:${bc};background:${bc}22;color:${tc}" onclick="cyclePref('${player}','${pos}')">${PREF_ICON[pref]}</button></td>`;
-        }).join("")}
-      </tr>`).join("")}
-    </tbody>
-  </table></div>`;
+  let html='<div class="label" style="margin-bottom:8px">Position Preferences — tap to cycle</div>';
+  html+='<div style="display:flex;gap:16px;font-size:12px;margin-bottom:14px;flex-wrap:wrap">';
+  html+='<span style="color:#E81828">★ Preferred</span><span style="color:#888">✗ Avoid</span><span style="color:#444">○ Neutral</span></div>';
+  html+='<div class="prefs-scroll"><table><thead><tr><th class="player-col">Player</th>';
+  POSITIONS.forEach(p=>{ html+='<th>'+p+'</th>'; });
+  html+='</tr></thead><tbody>';
+  state.players.forEach(player=>{
+    html+='<tr><td class="player-col">'+player+'</td>';
+    POSITIONS.forEach(pos=>{
+      const pref=state.prefs[player]?.[pos]||"neutral";
+      const bc=PREF_COLOR[pref], tc=PREF_TEXT[pref];
+      html+='<td><button class="pref-btn" style="border-color:'+bc+';background:'+bc+'22;color:'+tc+'" onclick="cyclePref(\''+player+'\',\''+pos+'\')">'+PREF_ICON[pref]+'</button></td>';
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table></div>';
   document.getElementById("tab-prefs").innerHTML=html;
 }
 
@@ -937,40 +933,31 @@ function renderStatsTab() {
   const totalAll=p=>POSITIONS.reduce((s,pos)=>s+(allCounts[p]?.[pos]||0),0);
   const maxInn=Math.max(...state.players.map(totalAll),1);
 
-  let html=`
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-    <div class="label" style="margin:0;border:none">All Games — ${state.game} game(s) · ${state.history.length} inning(s)</div>
-    <button class="btn btn-red" onclick="resetAll()">↺ Reset All</button>
-  </div>
-  <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table>
-    <thead><tr>
-      <th class="player-col">Player</th>
-      ${POSITIONS.map(p=>`<th>${p}</th>`).join("")}
-      <th style="color:#999">Bench</th>
-      <th style="color:#E81828">Total</th>
-    </tr></thead>
-    <tbody>
-    ${state.players.map(player=>{
-      const total=totalAll(player);
-      return `<tr>
-        <td class="player-col">${player}</td>
-        ${POSITIONS.map(pos=>{
-          const count=allCounts[player]?.[pos]||0;
-          const pref=state.prefs[player]?.[pos]||"neutral";
-          if(!count) return `<td><span style="color:#444">—</span></td>`;
-          const bg=pref==="preferred"?"#5a0910":pref==="avoid"?"#222":"#001540";
-          const c=pref==="preferred"?"#E81828":pref==="avoid"?"#999":"#6b9fff";
-          return `<td><span class="stat-badge" style="background:${bg};color:${c}">${count}</span></td>`;
-        }).join("")}
-        <td style="text-align:center"><span style="color:#888;font-size:12px">${allCounts[player]?.bench||0}</span></td>
-        <td style="text-align:center">
-          <div class="progress-bar"><div class="progress-fill" style="width:${(total/maxInn)*100}%"></div></div>
-          <span style="color:#E81828;font-weight:700;margin-left:6px;font-family:'Oswald',Arial,sans-serif">${total}</span>
-        </td>
-      </tr>`;
-    }).join("")}
-    </tbody>
-  </table></div>`;
+  let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">'
+    +'<div class="label" style="margin:0;border:none">All Games — '+state.game+' game(s) · '+state.history.length+' inning(s)</div>'
+    +'<button class="btn btn-red" onclick="resetAll()">↺ Reset All</button></div>'
+    +'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table><thead><tr>'
+    +'<th class="player-col">Player</th>';
+  POSITIONS.forEach(p=>{ html+='<th>'+p+'</th>'; });
+  html+='<th style="color:#999">Bench</th><th style="color:#E81828">Total</th></tr></thead><tbody>';
+
+  state.players.forEach(player=>{
+    const total=totalAll(player);
+    html+='<tr><td class="player-col">'+player+'</td>';
+    POSITIONS.forEach(pos=>{
+      const count=allCounts[player]?.[pos]||0;
+      const pref=state.prefs[player]?.[pos]||"neutral";
+      if(!count){ html+='<td><span style="color:#444">—</span></td>'; return; }
+      const bg=pref==="preferred"?"#5a0910":pref==="avoid"?"#222":"#001540";
+      const c=pref==="preferred"?"#E81828":pref==="avoid"?"#999":"#6b9fff";
+      html+='<td><span class="stat-badge" style="background:'+bg+';color:'+c+'">'+count+'</span></td>';
+    });
+    const pct=Math.round((total/maxInn)*100);
+    html+='<td style="text-align:center"><span style="color:#888;font-size:12px">'+(allCounts[player]?.bench||0)+'</span></td>'
+      +'<td style="text-align:center"><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div>'
+      +'<span style="color:#E81828;font-weight:700;margin-left:6px">'+total+'</span></td></tr>';
+  });
+  html+='</tbody></table></div>';
   document.getElementById("tab-stats").innerHTML=html;
 }
 
@@ -1005,21 +992,21 @@ let editingInningIdx = null;
 function openEditInning(historyIdx) {
   editingInningIdx = historyIdx;
   const entry = state.history[historyIdx];
-  document.getElementById("edit-modal-title").textContent = `EDIT — GAME ${entry.game} · INNING ${entry.inning}`;
+  document.getElementById("edit-modal-title").textContent = "EDIT — GAME "+entry.game+" · INNING "+entry.inning;
 
-  let body = `<div class="label" style="margin-bottom:10px">Assign positions</div>`;
+  let body = '<div class="label" style="margin-bottom:10px">Assign positions</div>';
   const lineup = { ...entry.lineup };
 
   POSITIONS.forEach(pos => {
     const assigned = lineup[pos] || "";
-    body += `
-    <div class="edit-pos-row">
-      <div class="edit-pos-tag">${pos}</div>
-      <select class="edit-select" id="edit-pos-${pos}">
-        <option value="">— none —</option>
-        ${state.players.map(p => `<option value="${p}" ${assigned===p?"selected":""}>${p}</option>`).join("")}
-      </select>
-    </div>`;
+    let opts = '<option value="">— none —</option>';
+    state.players.forEach(p => {
+      opts += '<option value="'+p+'" '+(assigned===p?'selected':'')+'>'+p+'</option>';
+    });
+    body += '<div class="edit-pos-row">'
+      +'<div class="edit-pos-tag">'+pos+'</div>'
+      +'<select class="edit-select" id="edit-pos-'+pos+'">'+opts+'</select>'
+      +'</div>';
   });
 
   document.getElementById("edit-modal-body").innerHTML = body;
@@ -1058,69 +1045,342 @@ function saveEditedInning() {
 // ── RENDER HISTORY ────────────────────────────────────────────────────────────
 function renderHistoryTab() {
   const allGames=[...new Set(state.history.map(h=>h.game))].sort((a,b)=>b-a);
-  let html=`<div class="label">${state.history.length} inning(s) across ${allGames.length} game(s)</div>`;
+  let html='<div class="label">'+state.history.length+' inning(s) across '+allGames.length+' game(s)</div>';
   if(!state.history.length){
-    html+=`<div class="empty">No innings recorded yet.<br>Set a lineup and tap Commit Inning.</div>`;
+    html+='<div class="empty">No innings recorded yet.<br>Set a lineup and tap Commit Inning.</div>';
   } else {
     allGames.forEach(gameNum=>{
-      const gameInnings=state.history
-        .map((h,i)=>({...h,_idx:i}))
-        .filter(h=>h.game===gameNum)
-        .reverse();
-      const info = state.gameInfo[gameNum] || {};
-      const dateStr = info.date ? new Date(info.date + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '';
-      const oppStr = info.opponent ? ` vs. ${info.opponent}` : '';
-      html+=`
-      <div class="game-divider">
-        <div class="game-divider-line"></div>
-        <div class="game-divider-label">⚾ GAME ${gameNum}${oppStr}${dateStr?' · '+dateStr:''}${gameNum===state.game?" — IN PROGRESS":` — ${gameInnings.length} inn.`}</div>
-        <div class="game-divider-line"></div>
-      </div>`;
-      gameInnings.forEach((entry)=>{
+      const gameInnings=state.history.map((h,i)=>({...h,_idx:i})).filter(h=>h.game===gameNum).reverse();
+      const info=state.gameInfo[gameNum]||{};
+      const dateStr=info.date?new Date(info.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+      const oppStr=info.opponent?' vs. '+info.opponent:'';
+      const statusStr=gameNum===state.game?' — IN PROGRESS':' — '+gameInnings.length+' inn.';
+      html+='<div class="game-divider">'
+        +'<div class="game-divider-line"></div>'
+        +'<div class="game-divider-label">⚾ GAME '+gameNum+oppStr+(dateStr?' · '+dateStr:'')+statusStr+'</div>'
+        +'<div class="game-divider-line"></div></div>';
+
+      gameInnings.forEach(entry=>{
         const {inning,lineup,bench,_idx}=entry;
-        html+=`<div class="inning-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-            <div class="inning-title" style="margin:0">INNING ${inning}</div>
-            <button class="btn btn-navy" style="font-size:10px;padding:5px 12px" onclick="openEditInning(${_idx})">✎ Edit</button>
-          </div>
-          <div class="pos-chips">
-          ${POSITIONS.map(pos=>{
-            const player=lineup[pos];
-            const pref=player?(state.prefs[player]?.[pos]||"neutral"):"neutral";
-            const c=pref==="preferred"?"#E81828":"#888";
-            return `<div class="pos-chip" style="border-color:${c}50">
-              <span style="color:#F0EBE0;font-weight:700;margin-right:5px;font-family:'Arial Narrow','Helvetica Neue',Arial,sans-serif">${pos}</span>
-              <span style="color:${c}">${player||"—"}</span>
-            </div>`;
-          }).join("")}
-          </div>
-          ${bench&&bench.length?`
-          <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #444">
-            <span style="font-size:10px;color:#999;letter-spacing:2px;margin-right:10px;font-family:'Arial Narrow','Helvetica Neue',Arial,sans-serif">BENCH</span>
-            ${bench.map(p=>`<span style="display:inline-block;margin:3px 4px 3px 0;padding:4px 9px;border-radius:2px;background:#222;border:1px solid #3a3a3e;font-size:11px;color:#888">${p}</span>`).join("")}
-          </div>`:""}
-          ${entry.absent&&entry.absent.length?`
-          <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #444">
-            <span style="font-size:10px;color:#E81828;letter-spacing:2px;margin-right:10px;font-family:'Arial Narrow','Helvetica Neue',Arial,sans-serif;opacity:0.7">ABSENT</span>
-            ${entry.absent.map(p=>`<span style="display:inline-block;margin:3px 4px 3px 0;padding:4px 9px;border-radius:2px;background:#2a0a0a;border:1px solid #5a0910;font-size:11px;color:#E81828;opacity:0.7;text-decoration:line-through">${p}</span>`).join("")}
-          </div>`:""}
-        </div>`;
+        html+='<div class="inning-card">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+          +'<div class="inning-title" style="margin:0">INNING '+inning+'</div>'
+          +'<button class="btn btn-navy" style="font-size:10px;padding:5px 12px" onclick="openEditInning('+_idx+')">✎ Edit</button>'
+          +'</div><div class="pos-chips">';
+
+        POSITIONS.forEach(pos=>{
+          const player=lineup[pos];
+          const pref=player?(state.prefs[player]?.[pos]||"neutral"):"neutral";
+          const c=pref==="preferred"?"#E81828":"#888";
+          html+='<div class="pos-chip" style="border-color:'+c+'50">'
+            +'<span style="color:#F0EBE0;font-weight:700;margin-right:5px">'+pos+'</span>'
+            +'<span style="color:'+c+'">'+(player||"—")+'</span></div>';
+        });
+
+        html+='</div>';
+
+        if(bench&&bench.length){
+          html+='<div style="margin-top:10px;padding-top:10px;border-top:1px dashed #444">'
+            +'<span style="font-size:10px;color:#999;letter-spacing:2px;margin-right:10px">BENCH</span>';
+          bench.forEach(p=>{ html+='<span style="display:inline-block;margin:3px 4px 3px 0;padding:4px 9px;border-radius:2px;background:#222;border:1px solid #3a3a3e;font-size:11px;color:#888">'+p+'</span>'; });
+          html+='</div>';
+        }
+
+        if(entry.absent&&entry.absent.length){
+          html+='<div style="margin-top:8px;padding-top:8px;border-top:1px dashed #444">'
+            +'<span style="font-size:10px;color:#E81828;letter-spacing:2px;margin-right:10px;opacity:0.7">ABSENT</span>';
+          entry.absent.forEach(p=>{ html+='<span style="display:inline-block;margin:3px 4px 3px 0;padding:4px 9px;border-radius:2px;background:#2a0a0a;border:1px solid #5a0910;font-size:11px;color:#E81828;opacity:0.7;text-decoration:line-through">'+p+'</span>'; });
+          html+='</div>';
+        }
+
+        html+='</div>';
       });
     });
   }
   document.getElementById("tab-history").innerHTML=html;
 }
 
-function render() {
-  renderLineupTab(); renderBattingTab(); renderPrefsTab(); renderStatsTab(); renderHistoryTab(); updateHeaderSub();
+// ── DIAMOND SVG ───────────────────────────────────────────────────────────────
+function buildDiamondSVG(lineup, width) {
+  const w = width || 320, h = w * 0.92;
+  const cx = w / 2;
+  // Base positions in SVG coords (scaled to w)
+  const scale = w / 320;
+  const positions = {
+    P:  { x: cx,           y: h * 0.58 },
+    C:  { x: cx,           y: h * 0.92 },
+    "1B": { x: cx + 95*scale, y: h * 0.55 },
+    "2B": { x: cx + 48*scale, y: h * 0.28 },
+    "3B": { x: cx - 95*scale, y: h * 0.55 },
+    SS:  { x: cx - 48*scale, y: h * 0.28 },
+    LF:  { x: cx - 100*scale, y: h * 0.13 },
+    CF:  { x: cx,           y: h * 0.07 },
+    RF:  { x: cx + 100*scale, y: h * 0.13 },
+  };
+
+  // Diamond base coords
+  const home = { x: cx, y: h * 0.85 };
+  const first = { x: cx + 85*scale, y: h * 0.62 };
+  const second = { x: cx, y: h * 0.38 };
+  const third = { x: cx - 85*scale, y: h * 0.62 };
+
+  function nameLabel(pos, player) {
+    const p = positions[pos];
+    if (!p) return '';
+    const hasPlayer = player && player.length > 0;
+    const boxW = 70*scale, boxH = 30*scale, r = 4;
+    const bx = p.x - boxW/2, by = p.y - boxH/2;
+    const bgColor = hasPlayer ? '#E81828' : '#333';
+    const textColor = '#fff';
+    const fontSize = Math.max(9, 11*scale);
+    const posSize = Math.max(7, 8*scale);
+    return `
+      <rect x="${bx}" y="${by}" width="${boxW}" height="${boxH}" rx="${r}" fill="${bgColor}" opacity="${hasPlayer?1:0.4}"/>
+      <text x="${p.x}" y="${p.y - boxH/2 + boxH*0.38}" text-anchor="middle" fill="${textColor}" font-size="${posSize}" font-family="Arial Narrow, Arial" font-weight="700" opacity="0.8">${pos}</text>
+      <text x="${p.x}" y="${p.y - boxH/2 + boxH*0.75}" text-anchor="middle" fill="${textColor}" font-size="${fontSize}" font-family="Helvetica Neue, Arial" font-weight="600">${hasPlayer ? player : '—'}</text>
+    `;
+  }
+
+  return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" width="100%">
+    <!-- Outfield arc -->
+    <path d="M ${cx - 125*scale} ${h*0.45} Q ${cx} ${h*-0.05} ${cx + 125*scale} ${h*0.45}" fill="none" stroke="#2d5a2d" stroke-width="${2*scale}"/>
+    <!-- Grass infield -->
+    <polygon points="${home.x},${home.y} ${first.x},${first.y} ${second.x},${second.y} ${third.x},${third.y}" fill="#1e4a1e" stroke="#2d5a2d" stroke-width="${1.5*scale}"/>
+    <!-- Basepaths -->
+    <line x1="${home.x}" y1="${home.y}" x2="${first.x}" y2="${first.y}" stroke="#8B7355" stroke-width="${2*scale}"/>
+    <line x1="${first.x}" y1="${first.y}" x2="${second.x}" y2="${second.y}" stroke="#8B7355" stroke-width="${2*scale}"/>
+    <line x1="${second.x}" y1="${second.y}" x2="${third.x}" y2="${third.y}" stroke="#8B7355" stroke-width="${2*scale}"/>
+    <line x1="${third.x}" y1="${third.y}" x2="${home.x}" y2="${home.y}" stroke="#8B7355" stroke-width="${2*scale}"/>
+    <!-- Bases -->
+    <rect x="${first.x-8*scale}" y="${first.y-8*scale}" width="${16*scale}" height="${16*scale}" fill="white" rx="2"/>
+    <rect x="${second.x-8*scale}" y="${second.y-8*scale}" width="${16*scale}" height="${16*scale}" fill="white" rx="2"/>
+    <rect x="${third.x-8*scale}" y="${third.y-8*scale}" width="${16*scale}" height="${16*scale}" fill="white" rx="2"/>
+    <!-- Home plate -->
+    <polygon points="${home.x},${home.y+10*scale} ${home.x-8*scale},${home.y+4*scale} ${home.x-8*scale},${home.y-6*scale} ${home.x+8*scale},${home.y-6*scale} ${home.x+8*scale},${home.y+4*scale}" fill="white"/>
+    <!-- Pitcher mound -->
+    <circle cx="${positions.P.x}" cy="${positions.P.y}" r="${8*scale}" fill="#8B7355" opacity="0.6"/>
+    <!-- Player labels -->
+    ${Object.keys(positions).map(pos => nameLabel(pos, lineup[pos])).join('')}
+  </svg>`;
 }
 
-// Expose functions to window for inline onclick handlers
+// ── RENDER DIAMOND ────────────────────────────────────────────────────────────
+let diamondSelectedGame = null;
+let diamondSelectedInning = null;
+
+function renderDiamondTab() {
+  const allGames = [...new Set(state.history.map(h => h.game))].sort((a,b) => a-b);
+
+  if (diamondSelectedGame === null && allGames.length > 0) diamondSelectedGame = allGames[allGames.length-1];
+  const gameInnings = state.history.filter(h => h.game === diamondSelectedGame).sort((a,b) => a.inning-b.inning);
+  if (diamondSelectedInning === null && gameInnings.length > 0) diamondSelectedInning = gameInnings[gameInnings.length-1].inning;
+
+  const entry = state.history.find(h => h.game === diamondSelectedGame && h.inning === diamondSelectedInning);
+  const info = state.gameInfo?.[diamondSelectedGame] || {};
+  const dateStr = info.date ? new Date(info.date + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '';
+  const oppStr = info.opponent || '';
+
+  // Build position → player reverse map for batting order annotation
+  const positionOf = {};
+  if (entry) Object.entries(entry.lineup).forEach(([pos, player]) => { positionOf[player] = pos; });
+
+  let html = '<div class="diamond-wrap"><div class="label">Field View</div><div class="diamond-controls">'
+    +'<select class="diamond-select" onchange="setDiamondGame(parseInt(this.value))">';
+  allGames.forEach(g=>{
+    const gi=state.gameInfo?.[g]||{};
+    const label='Game '+g+(gi.opponent?' vs. '+gi.opponent:'')+(gi.date?' · '+new Date(gi.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'');
+    html+='<option value="'+g+'" '+(g===diamondSelectedGame?'selected':'')+'>'+label+'</option>';
+  });
+  html+='</select><select class="diamond-select" onchange="setDiamondInning(parseInt(this.value))">';
+  gameInnings.forEach(h=>{
+    html+='<option value="'+h.inning+'" '+(h.inning===diamondSelectedInning?'selected':'')+'>Inning '+h.inning+'</option>';
+  });
+  html+='</select></div>';
+
+  if (!entry) {
+    html += '<div class="empty">No innings recorded for this game yet.</div>';
+  } else {
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start">'
+      +'<div><div style="font-size:10px;color:#666;letter-spacing:2px;margin-bottom:6px">FIELD</div>'
+      +'<div class="diamond-svg-wrap">'+buildDiamondSVG(entry.lineup, 280)+'</div>';
+
+    if(entry.bench&&entry.bench.length){
+      html+='<div style="margin-top:8px"><div style="font-size:10px;color:#666;letter-spacing:2px;margin-bottom:5px">BENCH</div>';
+      entry.bench.forEach(p=>{ html+='<span style="display:inline-block;margin:2px 3px;padding:3px 8px;background:#222;border:1px solid #333;border-radius:2px;font-size:11px;color:#888">'+p+'</span>'; });
+      html+='</div>';
+    }
+
+    html+='</div><div><div style="font-size:10px;color:#666;letter-spacing:2px;margin-bottom:6px">BATTING ORDER</div>'
+      +'<div class="batting-side">';
+    state.battingOrder.forEach((player,idx)=>{
+      const pos=positionOf[player]||(entry.bench?.includes(player)?'BENCH':(entry.absent?.includes(player)?'ABS':'—'));
+      html+='<div class="batting-row"><span class="bat-num">'+(idx+1)+'</span>'
+        +'<span class="bat-name">'+player+'</span>'
+        +'<span class="bat-pos">'+pos+'</span></div>';
+    });
+    html+='</div></div></div>'
+      +'<div style="margin-top:16px"><button class="btn btn-red" style="width:100%" onclick="exportGamePDF('+diamondSelectedGame+')">⬇ Export Game '+diamondSelectedGame+' as PDF</button></div>';
+  }
+
+  if (allGames.length === 0) {
+    html = '<div class="empty">No games recorded yet.<br>Commit some innings first.</div>';
+  }
+
+  html += '</div>';
+  document.getElementById("tab-diamond").innerHTML = html;
+}
+
+function setDiamondGame(g) {
+  diamondSelectedGame = g;
+  const gameInnings = state.history.filter(h => h.game === g).sort((a,b) => a.inning-b.inning);
+  diamondSelectedInning = gameInnings.length > 0 ? gameInnings[0].inning : null;
+  renderDiamondTab();
+}
+function setDiamondInning(n) { diamondSelectedInning = n; renderDiamondTab(); }
+
+// ── PDF EXPORT ────────────────────────────────────────────────────────────────
+async function exportGamePDF(gameNum) {
+  showToast("Generating PDF...", "#002D72");
+
+  // Load jsPDF from CDN
+  if (!window.jspdf) {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+
+  const gameInnings = state.history.filter(h => h.game === gameNum).sort((a,b) => a.inning - b.inning);
+  const info = state.gameInfo?.[gameNum] || {};
+  const dateStr = info.date ? new Date(info.date + 'T12:00:00').toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'}) : '';
+  const oppStr = info.opponent || '';
+
+  const pageW = 612, pageH = 792;
+  const margin = 36;
+
+  gameInnings.forEach((entry, pageIdx) => {
+    if (pageIdx > 0) doc.addPage();
+
+    // Header bar
+    doc.setFillColor(232, 24, 40);
+    doc.rect(0, 0, pageW, 52, 'F');
+    doc.setFillColor(0, 45, 114);
+    doc.rect(0, 52, pageW, 8, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PHILLIES LINEUP TRACKER', margin, 28);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    const sub = [oppStr ? `vs. ${oppStr}` : '', dateStr, `Game ${gameNum}`].filter(Boolean).join('  ·  ');
+    doc.text(sub, margin, 44);
+
+    // Inning label
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`INNING ${entry.inning}`, margin, 82);
+
+    // --- LEFT: Field positions list ---
+    const leftX = margin;
+    const rightX = pageW / 2 + 10;
+    let y = 100;
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(150, 150, 150);
+    doc.text('FIELD POSITIONS', leftX, y); y += 14;
+
+    doc.setFontSize(11);
+    POSITIONS.forEach(pos => {
+      const player = entry.lineup[pos] || '—';
+      // row bg
+      doc.setFillColor(245, 245, 245);
+      doc.rect(leftX, y - 11, pageW/2 - margin - 10, 16, 'F');
+      doc.setTextColor(232, 24, 40);
+      doc.setFont('helvetica', 'bold');
+      doc.text(pos, leftX + 4, y);
+      doc.setTextColor(30, 30, 30);
+      doc.setFont('helvetica', 'normal');
+      doc.text(POS_NAMES[pos], leftX + 32, y);
+      doc.setFont('helvetica', 'bold');
+      doc.text(player, leftX + 130, y);
+      y += 18;
+    });
+
+    // Bench
+    if (entry.bench && entry.bench.length) {
+      y += 6;
+      doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(150,150,150);
+      doc.text('BENCH', leftX, y); y += 12;
+      doc.setFontSize(11); doc.setFont('helvetica','normal'); doc.setTextColor(100,100,100);
+      doc.text(entry.bench.join(', '), leftX, y); y += 16;
+    }
+
+    // Absent
+    if (entry.absent && entry.absent.length) {
+      y += 4;
+      doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(200,50,50);
+      doc.text('ABSENT', leftX, y); y += 12;
+      doc.setFontSize(11); doc.setFont('helvetica','normal'); doc.setTextColor(180,80,80);
+      doc.text(entry.absent.join(', '), leftX, y);
+    }
+
+    // --- RIGHT: Batting order ---
+    const positionOf = {};
+    Object.entries(entry.lineup).forEach(([pos, player]) => { positionOf[player] = pos; });
+
+    let ry = 100;
+    doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(150,150,150);
+    doc.text('BATTING ORDER', rightX, ry); ry += 14;
+
+    doc.setFontSize(11);
+    state.battingOrder.forEach((player, idx) => {
+      const pos = positionOf[player] || (entry.bench?.includes(player) ? 'BENCH' : (entry.absent?.includes(player) ? 'ABS' : '—'));
+      doc.setFillColor(idx % 2 === 0 ? 248 : 240, idx % 2 === 0 ? 248 : 240, idx % 2 === 0 ? 248 : 240);
+      doc.rect(rightX, ry - 11, pageW/2 - margin - 10, 16, 'F');
+      doc.setTextColor(232, 24, 40); doc.setFont('helvetica','bold');
+      doc.text(`${idx+1}`, rightX + 4, ry);
+      doc.setTextColor(30,30,30); doc.setFont('helvetica','normal');
+      doc.text(player, rightX + 24, ry);
+      doc.setTextColor(120,120,120); doc.setFont('helvetica','bold');
+      doc.text(pos, rightX + 120, ry);
+      ry += 18;
+    });
+
+    // Divider line
+    doc.setDrawColor(232, 24, 40);
+    doc.setLineWidth(0.5);
+    doc.line(pageW/2, 62, pageW/2, pageH - margin);
+
+    // Footer
+    doc.setFontSize(8); doc.setTextColor(180,180,180); doc.setFont('helvetica','normal');
+    doc.text(`Phillies Lineup Tracker  ·  Game ${gameNum}  ·  Inning ${entry.inning}`, margin, pageH - 20);
+    doc.text(`${new Date().toLocaleDateString()}`, pageW - margin - 60, pageH - 20);
+  });
+
+  // Open PDF
+  const pdfBlob = doc.output('bloburl');
+  window.open(pdfBlob, '_blank');
+  showToast("PDF ready ✓");
+}
+
+function render() {
+  renderLineupTab(); renderBattingTab(); renderPrefsTab(); renderStatsTab(); renderHistoryTab(); renderDiamondTab(); updateHeaderSub();
+}
+
 Object.assign(window, {
   showTab, autoAssign, commitInning, newGame, editGameInfo, closeGameDetailsModal, confirmGameDetails,
   setPos, cyclePref, addPlayer, removePlayer, resetAll, toggleAbsent,
   moveBatter, setBatterAtSlot, commitBattingOrder, editBattingOrder,
-  openEditInning, closeEditModal, saveEditedInning, closeModal
+  openEditInning, closeEditModal, saveEditedInning, closeModal,
+  setDiamondGame, setDiamondInning, exportGamePDF
 });
 
 </script>
