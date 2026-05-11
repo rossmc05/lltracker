@@ -4,187 +4,333 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>⚾ Little League Tracker</title>
+<title>Phillies Lineup Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f1923; --bg2: #1e2a35; --bg3: #162030;
-    --border: #1e293b; --green: #22c55e; --green-dim: #14532d;
-    --blue: #3b82f6; --blue-dim: #1e3a5f; --red: #ef4444; --red-dim: #7f1d1d;
-    --amber: #f59e0b; --amber-dim: #451a03;
-    --purple: #a855f7; --purple-dim: #3b0764;
-    --muted: #64748b; --text: #e2e8f0; --text2: #94a3b8; --text3: #475569;
+    --red: #E81828;
+    --red-dim: #5a0910;
+    --red-mid: #9e1019;
+    --navy: #002D72;
+    --navy-dim: #001540;
+    --navy-mid: #00205a;
+    --cream: #F5F0E8;
+    --cream2: #EDE8DE;
+    --bg: #0d0d0d;
+    --bg2: #1a1a1a;
+    --bg3: #141414;
+    --border: #2a2a2a;
+    --border2: #333;
+    --muted: #666;
+    --text: #F5F0E8;
+    --text2: #b8b0a0;
+    --text3: #555;
+    --gold: #C5A028;
+    --gold-dim: #3a2d0a;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; min-height: 100vh; }
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Roboto+Condensed:wght@400;700&display=swap');
 
+- { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Roboto Condensed’, ‘Arial Narrow’, Arial, sans-serif;
+min-height: 100vh;
+}
+
+/* HEADER */
 .header {
-background: linear-gradient(135deg, #1a4731 0%, var(–bg) 60%);
-border-bottom: 3px solid var(–green); padding: 16px;
-display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+background: var(–red);
+background-image:
+repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px);
+border-bottom: 4px solid var(–navy);
+padding: 0;
 }
-.header-title { font-size: 18px; font-weight: 900; letter-spacing: 2px; color: var(–green); text-transform: uppercase; }
-.header-sub { font-size: 10px; color: var(–muted); letter-spacing: 3px; }
-.tabs { display: flex; gap: 6px; flex-wrap: wrap; }
-.tab-btn {
-padding: 7px 13px; border-radius: 4px; border: 2px solid var(–border);
-background: transparent; color: var(–text2); font-family: ‘Courier New’, monospace;
-font-weight: 700; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+.header-inner {
+display: flex; align-items: center; justify-content: space-between;
+flex-wrap: wrap; gap: 10px; padding: 12px 16px;
+max-width: 900px; margin: 0 auto;
 }
-.tab-btn.active { border-color: var(–green); background: var(–green); color: var(–bg); }
-.content { padding: 16px; max-width: 900px; margin: 0 auto; }
-.btn {
-padding: 9px 16px; border-radius: 4px; font-family: ‘Courier New’, monospace;
-font-weight: 700; font-size: 11px; letter-spacing: 1px; cursor: pointer; border: 2px solid;
+.header-brand { display: flex; align-items: center; gap: 12px; }
+.header-logo {
+width: 48px; height: 48px; border-radius: 50%;
+background: var(–navy); border: 3px solid var(–cream);
+display: flex; align-items: center; justify-content: center;
+font-size: 22px; flex-shrink: 0;
+box-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
-.btn-green  { border-color: var(–green);  background: var(–green-dim);  color: var(–green); }
-.btn-blue   { border-color: var(–blue);   background: var(–blue-dim);   color: #93c5fd; }
-.btn-red    { border-color: var(–red);    background: #7f1d1d22;         color: var(–red); }
-.btn-amber  { border-color: var(–amber);  background: var(–amber-dim);  color: var(–amber); }
-.btn-purple { border-color: var(–purple); background: var(–purple-dim); color: var(–purple); }
-.btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.label { font-size: 10px; color: var(–muted); letter-spacing: 3px; margin-bottom: 10px; text-transform: uppercase; }
+.header-title {
+font-family: ‘Oswald’, ‘Arial Narrow’, Arial, sans-serif;
+font-size: 20px; font-weight: 700; letter-spacing: 2px;
+color: var(–cream); text-transform: uppercase; line-height: 1.1;
+text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+}
+.header-sub { font-size: 10px; color: rgba(245,240,232,0.6); letter-spacing: 3px; margin-top: 2px; }
 
+/* TABS */
+.tabs {
+background: var(–navy);
+border-bottom: 2px solid #000;
+padding: 0 16px;
+display: flex; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab-btn {
+padding: 10px 14px; border: none; border-bottom: 3px solid transparent;
+background: transparent; color: rgba(245,240,232,0.5);
+font-family: ‘Oswald’, Arial, sans-serif;
+font-weight: 600; font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+cursor: pointer; white-space: nowrap; transition: color 0.15s;
+}
+.tab-btn.active {
+color: var(–cream); border-bottom-color: var(–red);
+}
+
+.content { padding: 16px; max-width: 900px; margin: 0 auto; }
+
+/* BUTTONS */
+.btn {
+padding: 9px 16px; border-radius: 3px;
+font-family: ‘Oswald’, Arial, sans-serif;
+font-weight: 600; font-size: 12px; letter-spacing: 2px;
+cursor: pointer; border: 2px solid; text-transform: uppercase;
+transition: opacity 0.15s;
+}
+.btn-red    { border-color: var(–red);   background: var(–red-dim);   color: var(–red); }
+.btn-navy   { border-color: var(–navy);  background: var(–navy-dim);  color: #6b9fff; }
+.btn-cancel { border-color: var(–border2); background: #222; color: var(–text2); }
+.btn-gold   { border-color: var(–gold);  background: var(–gold-dim);  color: var(–gold); }
+.btn-cream  { border-color: var(–cream2); background: #2a2520; color: var(–cream); }
+.btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+/* SECTION LABEL */
+.label {
+font-family: ‘Oswald’, Arial, sans-serif;
+font-size: 11px; color: var(–muted); letter-spacing: 3px;
+margin-bottom: 10px; text-transform: uppercase;
+border-bottom: 1px solid var(–border); padding-bottom: 6px;
+}
+
+/* SCOREBOARD BANNER */
+.game-banner {
+background: var(–navy);
+background-image: repeating-linear-gradient(
+90deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 3px
+);
+border: 1px solid #000; border-radius: 4px;
+padding: 12px 16px; margin-bottom: 16px;
+display: flex; align-items: center; justify-content: space-between;
+flex-wrap: wrap; gap: 10px;
+box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 8px rgba(0,0,0,0.4);
+}
+.game-num {
+font-family: ‘Oswald’, Arial, sans-serif;
+font-size: 16px; font-weight: 700; color: var(–cream); letter-spacing: 3px;
+}
+.game-meta { font-size: 11px; color: var(–text2); letter-spacing: 1px; margin-top: 2px; }
+
+/* INNING HEADER */
+.inning-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+.inning-display {
+background: #111; border: 1px solid var(–border2); border-radius: 4px;
+padding: 8px 16px; display: flex; align-items: baseline; gap: 8px;
+}
+.inning-label { font-size: 10px; color: var(–muted); letter-spacing: 3px; font-family: ‘Oswald’, Arial, sans-serif; }
+.inning-val {
+font-family: ‘Oswald’, Arial, sans-serif;
+font-size: 32px; font-weight: 700; color: var(–red); line-height: 1;
+}
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* POSITION ROWS */
 .pos-row {
 display: flex; align-items: center; gap: 10px;
-margin-bottom: 7px; padding: 9px 12px;
-background: var(–bg2); border-radius: 6px; border: 1px solid var(–border);
+margin-bottom: 6px; padding: 8px 12px;
+background: var(–bg2); border-radius: 3px;
+border-left: 3px solid var(–border2); border-top: 1px solid var(–border); border-right: 1px solid var(–border); border-bottom: 1px solid var(–border);
+transition: border-left-color 0.15s;
 }
-.pos-tag { width: 36px; text-align: center; font-weight: 900; font-size: 12px; color: var(–green); letter-spacing: 1px; flex-shrink: 0; }
-.pos-name { font-size: 10px; color: var(–text3); flex: 1; }
+.pos-tag {
+width: 36px; text-align: center; font-weight: 700; font-size: 13px;
+color: var(–cream2); letter-spacing: 1px; flex-shrink: 0;
+font-family: ‘Oswald’, Arial, sans-serif;
+}
+.pos-name { font-size: 10px; color: var(–text3); flex: 1; letter-spacing: 1px; }
 .pos-select {
-background: var(–bg); border: 1px solid var(–border); color: var(–text2);
-border-radius: 4px; padding: 5px 8px; font-family: ‘Courier New’, monospace;
-font-size: 12px; cursor: pointer; max-width: 140px; width: 100%;
+background: #111; border: 1px solid var(–border2); color: var(–text2);
+border-radius: 3px; padding: 6px 8px;
+font-family: ‘Roboto Condensed’, Arial, sans-serif; font-size: 13px;
+cursor: pointer; max-width: 150px; width: 100%;
 }
+
+/* BENCH */
 .bench-item {
-padding: 9px 12px; margin-bottom: 6px; background: var(–bg2); border-radius: 6px;
+padding: 9px 12px; margin-bottom: 5px; background: var(–bg2); border-radius: 3px;
 border: 1px solid var(–border); color: var(–text2); font-size: 13px; font-weight: 600;
 display: flex; justify-content: space-between; align-items: center;
+border-left: 3px solid var(–border2);
 }
+
+/* ROSTER */
 .roster-item {
 display: flex; justify-content: space-between; align-items: center;
-padding: 6px 10px; margin-bottom: 4px; background: var(–bg); border-radius: 4px; font-size: 13px;
+padding: 7px 10px; margin-bottom: 4px;
+background: #111; border-radius: 3px; font-size: 13px;
+border: 1px solid var(–border);
 }
-.rm-btn { background: none; border: none; color: var(–red); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; }
+.rm-btn { background: none; border: none; color: var(–muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; }
+.rm-btn:active { color: var(–red); }
+
+/* INPUT */
 .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
 .text-input {
-flex: 1; padding: 8px 12px; background: var(–bg2); border: 1px solid var(–border);
-border-radius: 4px; color: var(–text); font-family: ‘Courier New’, monospace; font-size: 13px;
+flex: 1; padding: 9px 12px; background: #111;
+border: 1px solid var(–border2); border-radius: 3px;
+color: var(–text); font-family: ‘Roboto Condensed’, Arial, sans-serif; font-size: 13px;
 }
 .text-input::placeholder { color: var(–text3); }
+.text-input:focus { outline: none; border-color: var(–red); }
 
+/* TABLE */
 .prefs-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; font-size: 12px; }
-th { padding: 8px 6px; color: var(–muted); font-weight: 700; letter-spacing: 1px; font-size: 10px; border-bottom: 2px solid var(–border); text-align: center; }
+th {
+padding: 8px 6px; color: var(–muted); font-weight: 700; letter-spacing: 2px;
+font-size: 10px; border-bottom: 2px solid var(–red); text-align: center;
+font-family: ‘Oswald’, Arial, sans-serif;
+}
 th.player-col { text-align: left; padding-left: 12px; }
-td { padding: 7px 4px; text-align: center; }
-td.player-col { padding: 7px 12px; color: var(–text); font-weight: 700; text-align: left; white-space: nowrap; }
-tr:nth-child(even) { background: var(–bg2); }
-tr:nth-child(odd)  { background: var(–bg3); }
+td { padding: 8px 4px; text-align: center; border-bottom: 1px solid var(–border); }
+td.player-col { padding: 8px 12px; color: var(–text); font-weight: 700; text-align: left; white-space: nowrap; }
+tr:nth-child(even) td { background: var(–bg2); }
+tr:nth-child(odd) td  { background: var(–bg3); }
 
 .pref-btn {
-width: 30px; height: 30px; border-radius: 6px; border: 2px solid; cursor: pointer; font-size: 14px;
+width: 30px; height: 30px; border-radius: 3px; border: 2px solid; cursor: pointer; font-size: 14px;
 display: inline-flex; align-items: center; justify-content: center; margin: auto;
 }
-.stat-badge { display: inline-block; width: 26px; height: 26px; line-height: 26px; border-radius: 50%; font-size: 12px; font-weight: 700; text-align: center; }
-.progress-bar { height: 6px; background: var(–border); border-radius: 3px; width: 50px; overflow: hidden; display: inline-block; vertical-align: middle; }
-.progress-fill { height: 100%; background: var(–green); border-radius: 3px; }
+.stat-badge { display: inline-block; width: 26px; height: 26px; line-height: 26px; border-radius: 2px; font-size: 12px; font-weight: 700; text-align: center; font-family: ‘Oswald’, Arial, sans-serif; }
+.progress-bar { height: 5px; background: var(–border); border-radius: 2px; width: 50px; overflow: hidden; display: inline-block; vertical-align: middle; }
+.progress-fill { height: 100%; background: var(–red); border-radius: 2px; }
 
-.inning-card { margin-bottom: 14px; padding: 14px; background: var(–bg2); border-radius: 8px; border: 1px solid var(–border); }
-.inning-title { color: var(–green); font-weight: 900; font-size: 13px; margin-bottom: 10px; letter-spacing: 2px; }
-.pos-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.pos-chip { padding: 5px 10px; border-radius: 4px; background: var(–bg); font-size: 11px; border: 1px solid var(–border); }
+/* INNING CARDS */
+.inning-card {
+margin-bottom: 12px; padding: 12px 14px; background: var(–bg2); border-radius: 3px;
+border: 1px solid var(–border); border-top: 2px solid var(–red);
+}
+.inning-title {
+color: var(–cream); font-weight: 700; font-size: 12px; margin-bottom: 10px;
+letter-spacing: 3px; font-family: ‘Oswald’, Arial, sans-serif;
+}
+.pos-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.pos-chip {
+padding: 4px 9px; border-radius: 2px; background: #111; font-size: 11px;
+border: 1px solid var(–border);
+}
 
+/* GAME DIVIDER */
 .game-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0 12px; }
-.game-divider-line { flex: 1; height: 1px; background: var(–amber); opacity: 0.4; }
-.game-divider-label { font-size: 11px; font-weight: 900; letter-spacing: 3px; color: var(–amber); white-space: nowrap; }
-
-.game-banner {
-display: flex; align-items: center; justify-content: space-between;
-padding: 10px 14px; margin-bottom: 16px;
-background: #1c1a09; border: 1px solid var(–amber); border-radius: 8px; flex-wrap: wrap; gap: 8px;
+.game-divider-line { flex: 1; height: 1px; background: var(–red); opacity: 0.3; }
+.game-divider-label {
+font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(–red);
+white-space: nowrap; font-family: ‘Oswald’, Arial, sans-serif;
 }
-.game-num { font-size: 13px; font-weight: 900; color: var(–amber); letter-spacing: 2px; }
-.game-meta { font-size: 11px; color: var(–muted); }
-.inning-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
-.inning-num { font-size: 10px; color: var(–text2); letter-spacing: 2px; }
-.inning-num span { color: var(–green); font-size: 26px; font-weight: 900; }
-.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
-.legend { display: flex; gap: 14px; font-size: 11px; margin-bottom: 12px; flex-wrap: wrap; }
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-@media(max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
 
-/* BATTING ORDER */
+/* BATTING */
 .batting-slot {
-display: flex; align-items: center; gap: 10px;
-margin-bottom: 7px; padding: 9px 12px;
-background: var(–bg2); border-radius: 6px; border: 1px solid var(–border);
-transition: background 0.15s;
+display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
+padding: 9px 12px; background: var(–bg2); border-radius: 3px;
+border: 1px solid var(–border); border-left: 3px solid var(–border2);
 }
-.batting-slot.drag-over { background: #2a1f45; border-color: var(–purple); }
 .batting-num {
-width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-font-weight: 900; font-size: 12px; flex-shrink: 0;
-background: var(–purple-dim); color: var(–purple); border: 1px solid var(–purple);
+width: 28px; height: 28px; border-radius: 2px;
+display: flex; align-items: center; justify-content: center;
+font-weight: 700; font-size: 13px; flex-shrink: 0;
+background: var(–red-dim); color: var(–red); border: 1px solid var(–red-mid);
+font-family: ‘Oswald’, Arial, sans-serif;
 }
-.batting-name { flex: 1; font-size: 14px; font-weight: 700; color: var(–text); }
+.batting-name { flex: 1; font-size: 14px; font-weight: 700; color: var(–cream); font-family: ‘Roboto Condensed’, Arial, sans-serif; }
 .batting-arrows { display: flex; flex-direction: column; gap: 2px; }
 .arrow-btn {
-background: none; border: 1px solid var(–border); border-radius: 3px;
-color: var(–text3); cursor: pointer; font-size: 10px; padding: 2px 6px; line-height: 1;
+background: #111; border: 1px solid var(–border2); border-radius: 2px;
+color: var(–text3); cursor: pointer; font-size: 10px; padding: 3px 7px; line-height: 1;
 }
-.arrow-btn:active { background: var(–bg3); color: var(–text); }
+.arrow-btn:active { background: var(–bg2); color: var(–cream); }
 .batting-select {
-flex: 1; background: var(–bg); border: 1px solid var(–border); color: var(–text2);
-border-radius: 4px; padding: 5px 8px; font-family: ‘Courier New’, monospace;
-font-size: 13px; cursor: pointer;
+flex: 1; background: #111; border: 1px solid var(–border2); color: var(–text2);
+border-radius: 3px; padding: 6px 8px;
+font-family: ‘Roboto Condensed’, Arial, sans-serif; font-size: 13px; cursor: pointer;
 }
 .batting-committed-badge {
-display: inline-block; padding: 3px 10px; border-radius: 100px;
-background: var(–purple-dim); border: 1px solid var(–purple);
-color: var(–purple); font-size: 10px; font-weight: 700; letter-spacing: 2px;
+display: inline-block; padding: 3px 10px; border-radius: 2px;
+background: var(–navy-dim); border: 1px solid var(–navy);
+color: #6b9fff; font-size: 10px; font-weight: 700; letter-spacing: 2px;
+font-family: ‘Oswald’, Arial, sans-serif;
 }
-.batting-order-list { max-width: 400px; }
+.batting-order-list { max-width: 420px; }
 
 /* MODAL */
 .modal-overlay {
-position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000;
+position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000;
 display: flex; align-items: center; justify-content: center; padding: 24px;
 }
-.modal-box { background: var(–bg2); border: 2px solid var(–amber); border-radius: 12px; padding: 24px; max-width: 340px; width: 100%; }
-.modal-title { font-size: 14px; font-weight: 900; color: var(–amber); letter-spacing: 2px; margin-bottom: 10px; }
+.modal-box {
+background: var(–bg2); border: 1px solid var(–border2);
+border-top: 3px solid var(–red);
+border-radius: 4px; padding: 24px; max-width: 340px; width: 100%;
+box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+}
+.modal-title {
+font-size: 15px; font-weight: 700; color: var(–cream); letter-spacing: 2px;
+margin-bottom: 10px; font-family: ‘Oswald’, Arial, sans-serif;
+}
 .modal-msg { font-size: 13px; color: var(–text2); line-height: 1.6; margin-bottom: 20px; }
 .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
 
+/* TOAST */
 .toast {
 position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-background: var(–green); color: var(–bg); padding: 10px 24px;
-border-radius: 100px; font-weight: 700; font-size: 13px; letter-spacing: 1px;
-opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap;
+background: var(–red); color: var(–cream); padding: 10px 24px;
+border-radius: 3px; font-weight: 700; font-size: 12px; letter-spacing: 2px;
+opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999;
+white-space: nowrap; font-family: ‘Oswald’, Arial, sans-serif;
+box-shadow: 0 4px 20px rgba(232,24,40,0.4);
 }
 .toast.show { opacity: 1; }
-.empty { color: var(–text3); text-align: center; padding: 32px; font-size: 13px; }
+.empty { color: var(–text3); text-align: center; padding: 40px; font-size: 14px; line-height: 1.8; }
+
+/* STITCHING DIVIDER */
+.stitch {
+border: none; margin: 16px 0;
+border-top: 2px dashed var(–border2); opacity: 0.5;
+}
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media(max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
 </style>
 
 </head>
 <body>
 
+<!-- HEADER -->
+
 <div class="header">
-  <div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:28px">⚾</span>
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="header-logo">⚾</div>
       <div>
-        <div class="header-title">Little League Tracker</div>
-        <div id="header-sub" class="header-sub">POSITION ROTATION MANAGER</div>
+        <div class="header-title">Phillies Lineup Tracker</div>
+        <div id="header-sub" class="header-sub">GAME 1 · INNING 1</div>
       </div>
     </div>
   </div>
   <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('lineup')">Lineup</button>
-    <button class="tab-btn" onclick="showTab('batting')">Batting</button>
-    <button class="tab-btn" onclick="showTab('prefs')">Prefs</button>
-    <button class="tab-btn" onclick="showTab('stats')">Stats</button>
-    <button class="tab-btn" onclick="showTab('history')">History</button>
+    <button class="tab-btn active" onclick="showTab('lineup')">⚾ Lineup</button>
+    <button class="tab-btn" onclick="showTab('batting')">🏏 Batting</button>
+    <button class="tab-btn" onclick="showTab('prefs')">★ Prefs</button>
+    <button class="tab-btn" onclick="showTab('stats')">📊 Stats</button>
+    <button class="tab-btn" onclick="showTab('history')">📋 History</button>
   </div>
 </div>
 
@@ -196,13 +342,15 @@ opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-
   <div id="tab-history" style="display:none"></div>
 </div>
 
+<!-- MODAL -->
+
 <div id="modal-overlay" class="modal-overlay" style="display:none">
   <div class="modal-box">
     <div class="modal-title" id="modal-title"></div>
     <div class="modal-msg" id="modal-msg"></div>
     <div class="modal-btns">
-      <button class="btn btn-red" onclick="closeModal()">CANCEL</button>
-      <button class="btn btn-amber" id="modal-confirm-btn">CONFIRM</button>
+      <button class="btn btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-red" id="modal-confirm-btn">Confirm</button>
     </div>
   </div>
 </div>
@@ -214,7 +362,8 @@ const POSITIONS = ["P","C","1B","2B","3B","SS","LF","CF","RF"];
 const POS_NAMES = {P:"Pitcher",C:"Catcher","1B":"1st Base","2B":"2nd Base","3B":"3rd Base",SS:"Shortstop",LF:"Left Field",CF:"Center Field",RF:"Right Field"};
 const PREF_CYCLE = ["neutral","preferred","avoid"];
 const PREF_ICON  = {preferred:"★", avoid:"✗", neutral:"○"};
-const PREF_COLOR = {preferred:"#22c55e", avoid:"#ef4444", neutral:"#94a3b8"};
+const PREF_COLOR = {preferred:"#E81828", avoid:"#555", neutral:"#444"};
+const PREF_TEXT  = {preferred:"#E81828", avoid:"#888", neutral:"#666"};
 const DEFAULT_PLAYERS = ["Luca","Josie","Maeve","Oscar","Jacob","Owen","Leo","Ryder","Wren","Willa","Finn","Indy","Sadie"];
 
 function freshCounts(players) {
@@ -232,8 +381,7 @@ function loadState() {
   try {
     const old = localStorage.getItem("lltracker_v1");
     if (old && !localStorage.getItem("lltracker_v2")) {
-      const s = JSON.parse(old);
-      s.game = 1; s.games = [];
+      const s = JSON.parse(old); s.game = 1; s.games = [];
       localStorage.setItem("lltracker_v2", JSON.stringify(s));
     }
   } catch(e) {}
@@ -244,22 +392,17 @@ function loadState() {
       if (!parsed.game) parsed.game = 1;
       if (!parsed.games) parsed.games = [];
       if (!parsed.battingOrder) parsed.battingOrder = [...parsed.players];
-      if (!parsed.battingCommitted) parsed.battingCommitted = false;
+      if (parsed.battingCommitted === undefined) parsed.battingCommitted = false;
       if (!parsed.pendingBatting) parsed.pendingBatting = [...parsed.players];
       return parsed;
     }
   } catch(e) {}
   const players = [...DEFAULT_PLAYERS];
-  return {
-    players, prefs: freshPrefs(players), counts: freshCounts(players),
-    history: [], inning: 1, lineup: {}, game: 1, games: [],
-    battingOrder: [...players], battingCommitted: false, pendingBatting: [...players]
-  };
+  return { players, prefs: freshPrefs(players), counts: freshCounts(players), history: [], inning: 1, lineup: {}, game: 1, games: [], battingOrder: [...players], battingCommitted: false, pendingBatting: [...players] };
 }
 function saveState() { localStorage.setItem("lltracker_v2", JSON.stringify(state)); }
 
 let state = loadState();
-// ensure batting fields on old saves
 if (!state.battingOrder) state.battingOrder = [...state.players];
 if (state.battingCommitted === undefined) state.battingCommitted = false;
 if (!state.pendingBatting) state.pendingBatting = [...state.players];
@@ -270,7 +413,7 @@ function showModal(title, msg, confirmLabel, onConfirm, confirmClass) {
   document.getElementById("modal-msg").textContent = msg;
   const btn = document.getElementById("modal-confirm-btn");
   btn.textContent = confirmLabel;
-  btn.className = "btn " + (confirmClass || "btn-amber");
+  btn.className = "btn " + (confirmClass || "btn-red");
   btn.onclick = () => { closeModal(); onConfirm(); };
   document.getElementById("modal-overlay").style.display = "flex";
 }
@@ -280,7 +423,7 @@ function closeModal() { document.getElementById("modal-overlay").style.display =
 let toastTimer;
 function showToast(msg, color) {
   const t = document.getElementById("toast");
-  t.textContent = msg; t.style.background = color || "#22c55e";
+  t.textContent = msg; t.style.background = color || "#E81828";
   t.classList.add("show"); clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
 }
@@ -298,270 +441,250 @@ function showTab(tab) {
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-function totalInnings(p) {
-  return POSITIONS.reduce((s, pos) => s + (state.counts[p]?.[pos] || 0), 0);
-}
+function totalInnings(p) { return POSITIONS.reduce((s,pos) => s+(state.counts[p]?.[pos]||0),0); }
 function ensurePlayer(p) {
-  if (!state.prefs[p]) { state.prefs[p] = {}; POSITIONS.forEach(pos => state.prefs[p][pos] = "neutral"); }
-  if (!state.counts[p]) { state.counts[p] = {}; POSITIONS.forEach(pos => state.counts[p][pos] = 0); state.counts[p].bench = 0; }
+  if (!state.prefs[p]) { state.prefs[p]={}; POSITIONS.forEach(pos=>state.prefs[p][pos]="neutral"); }
+  if (!state.counts[p]) { state.counts[p]={}; POSITIONS.forEach(pos=>state.counts[p][pos]=0); state.counts[p].bench=0; }
 }
 function updateHeaderSub() {
   document.getElementById("header-sub").textContent = `GAME ${state.game}  ·  INNING ${state.inning}`;
 }
 
-// ── BATTING ORDER ─────────────────────────────────────────────────────────────
+// ── BATTING ───────────────────────────────────────────────────────────────────
 function moveBatter(idx, dir) {
   const order = [...state.pendingBatting];
   const newIdx = idx + dir;
   if (newIdx < 0 || newIdx >= order.length) return;
   [order[idx], order[newIdx]] = [order[newIdx], order[idx]];
-  state.pendingBatting = order;
-  saveState(); renderBattingTab();
+  state.pendingBatting = order; saveState(); renderBattingTab();
 }
-
 function setBatterAtSlot(idx, player) {
-  // swap: find where player currently is, swap with idx
   const order = [...state.pendingBatting];
   const from = order.indexOf(player);
   if (from === -1) return;
   [order[idx], order[from]] = [order[from], order[idx]];
-  state.pendingBatting = order;
-  saveState(); renderBattingTab();
+  state.pendingBatting = order; saveState(); renderBattingTab();
 }
-
 function commitBattingOrder() {
   state.battingOrder = [...state.pendingBatting];
   state.battingCommitted = true;
-  saveState(); showToast("Batting order locked ✓", "#a855f7"); renderBattingTab();
+  saveState(); showToast("Batting order locked", "#002D72"); renderBattingTab();
 }
-
 function editBattingOrder() {
   state.battingCommitted = false;
   state.pendingBatting = [...state.battingOrder];
   saveState(); renderBattingTab();
 }
-
-// rotate bottom player to top for new game
 function rotateBattingOrder() {
-  if (state.battingOrder.length === 0) return;
-  const last = state.battingOrder[state.battingOrder.length - 1];
-  const rest = state.battingOrder.slice(0, state.battingOrder.length - 1);
-  state.battingOrder = [last, ...rest];
+  if (!state.battingOrder.length) return;
+  const last = state.battingOrder[state.battingOrder.length-1];
+  state.battingOrder = [last, ...state.battingOrder.slice(0,-1)];
   state.pendingBatting = [...state.battingOrder];
-  state.battingCommitted = false; // allow reviewing before committing new game order
+  state.battingCommitted = false;
 }
 
 // ── AUTO ASSIGN ───────────────────────────────────────────────────────────────
 function autoAssign() {
-  const lineup = {}, assigned = new Set(), scores = {};
+  const lineup={}, assigned=new Set(), scores={};
   state.players.forEach(p => {
-    scores[p] = {};
+    scores[p]={};
     POSITIONS.forEach(pos => {
-      const pref = state.prefs[p]?.[pos] || "neutral";
-      const count = state.counts[p]?.[pos] || 0;
-      scores[p][pos] = (pref==="preferred"?10:pref==="avoid"?-20:0) - count*3;
+      const pref=state.prefs[p]?.[pos]||"neutral", count=state.counts[p]?.[pos]||0;
+      scores[p][pos]=(pref==="preferred"?10:pref==="avoid"?-20:0)-count*3;
     });
   });
-  const posOrder = [...POSITIONS].sort((a,b) =>
+  const posOrder=[...POSITIONS].sort((a,b)=>
     state.players.filter(p=>(state.prefs[p]?.[a]||"neutral")!=="avoid").length -
     state.players.filter(p=>(state.prefs[p]?.[b]||"neutral")!=="avoid").length
   );
   posOrder.forEach(pos => {
-    const best = state.players.filter(p=>!assigned.has(p)).sort((a,b)=>scores[b][pos]-scores[a][pos])[0];
-    if (best) { lineup[pos] = best; assigned.add(best); }
+    const best=state.players.filter(p=>!assigned.has(p)).sort((a,b)=>scores[b][pos]-scores[a][pos])[0];
+    if(best){lineup[pos]=best; assigned.add(best);}
   });
-  state.lineup = lineup;
-  saveState(); render();
+  state.lineup=lineup; saveState(); render();
 }
 
 // ── COMMIT INNING ─────────────────────────────────────────────────────────────
 function commitInning() {
-  if (Object.keys(state.lineup).length < 9) return;
-  const assigned = Object.values(state.lineup);
-  const bench = state.players.filter(p => !assigned.includes(p));
-  Object.entries(state.lineup).forEach(([pos, p]) => {
-    if (!state.counts[p]) state.counts[p] = {};
-    state.counts[p][pos] = (state.counts[p][pos] || 0) + 1;
+  if(Object.keys(state.lineup).length<9) return;
+  const assigned=Object.values(state.lineup);
+  const bench=state.players.filter(p=>!assigned.includes(p));
+  Object.entries(state.lineup).forEach(([pos,p])=>{
+    if(!state.counts[p]) state.counts[p]={};
+    state.counts[p][pos]=(state.counts[p][pos]||0)+1;
   });
-  bench.forEach(p => {
-    if (!state.counts[p]) state.counts[p] = {};
-    state.counts[p].bench = (state.counts[p].bench || 0) + 1;
+  bench.forEach(p=>{
+    if(!state.counts[p]) state.counts[p]={};
+    state.counts[p].bench=(state.counts[p].bench||0)+1;
   });
-  state.history.push({ game: state.game, inning: state.inning, lineup: {...state.lineup}, bench: [...bench] });
-  state.inning++;
-  state.lineup = {};
-  saveState(); showToast("Inning committed ✓"); render();
+  state.history.push({game:state.game,inning:state.inning,lineup:{...state.lineup},bench:[...bench]});
+  state.inning++; state.lineup={};
+  saveState(); showToast("Inning recorded ✓"); render();
 }
 
 // ── NEW GAME ──────────────────────────────────────────────────────────────────
 function newGame() {
-  showModal(
-    `END GAME ${state.game}`,
-    `Start Game ${state.game + 1}? Inning counts reset. Batting order rotates (last batter moves to top). Roster and preferences are kept.`,
-    `START GAME ${state.game + 1}`,
-    () => {
-      state.games.push({ game: state.game, innings: state.inning - 1, counts: JSON.parse(JSON.stringify(state.counts)) });
-      state.game++;
-      state.inning = 1;
-      state.lineup = {};
-      state.counts = freshCounts(state.players);
-      rotateBattingOrder();
-      saveState(); showToast(`Game ${state.game} started! ⚾`, "#f59e0b"); render();
-    },
-    "btn-amber"
-  );
+  showModal(`End Game ${state.game}`,
+    `Start Game ${state.game+1}? Inning counts reset. Batting order rotates. Roster and preferences are kept.`,
+    `Start Game ${state.game+1}`, () => {
+    state.games.push({game:state.game,innings:state.inning-1,counts:JSON.parse(JSON.stringify(state.counts))});
+    state.game++; state.inning=1; state.lineup={};
+    state.counts=freshCounts(state.players);
+    rotateBattingOrder();
+    saveState(); showToast(`Game ${state.game} — Play ball! ⚾`, "#002D72"); render();
+  }, "btn-navy");
 }
 
 // ── ACTIONS ───────────────────────────────────────────────────────────────────
-function setPos(pos, player) {
-  Object.keys(state.lineup).forEach(p => { if (state.lineup[p] === player) delete state.lineup[p]; });
-  if (player) state.lineup[pos] = player; else delete state.lineup[pos];
+function setPos(pos,player) {
+  Object.keys(state.lineup).forEach(p=>{if(state.lineup[p]===player)delete state.lineup[p];});
+  if(player) state.lineup[pos]=player; else delete state.lineup[pos];
   saveState(); renderLineupTab();
 }
-function cyclePref(player, pos) {
-  const cur = state.prefs[player]?.[pos] || "neutral";
-  state.prefs[player][pos] = PREF_CYCLE[(PREF_CYCLE.indexOf(cur)+1)%3];
+function cyclePref(player,pos) {
+  const cur=state.prefs[player]?.[pos]||"neutral";
+  state.prefs[player][pos]=PREF_CYCLE[(PREF_CYCLE.indexOf(cur)+1)%3];
   saveState(); renderPrefsTab();
 }
 function addPlayer() {
-  const name = document.getElementById("new-player-input").value.trim();
-  if (!name || state.players.includes(name)) return;
-  state.players.push(name);
-  ensurePlayer(name);
-  // append to batting orders too
-  if (!state.battingOrder.includes(name)) state.battingOrder.push(name);
-  if (!state.pendingBatting.includes(name)) state.pendingBatting.push(name);
-  document.getElementById("new-player-input").value = "";
+  const name=document.getElementById("new-player-input").value.trim();
+  if(!name||state.players.includes(name)) return;
+  state.players.push(name); ensurePlayer(name);
+  if(!state.battingOrder.includes(name)) state.battingOrder.push(name);
+  if(!state.pendingBatting.includes(name)) state.pendingBatting.push(name);
+  document.getElementById("new-player-input").value="";
   saveState(); render();
 }
 function removePlayer(p) {
-  showModal("REMOVE PLAYER", `Remove ${p} from the roster?`, "REMOVE", () => {
-    state.players = state.players.filter(x => x !== p);
-    state.battingOrder = state.battingOrder.filter(x => x !== p);
-    state.pendingBatting = state.pendingBatting.filter(x => x !== p);
+  showModal("Remove Player",`Remove ${p} from the roster?`,"Remove",()=>{
+    state.players=state.players.filter(x=>x!==p);
+    state.battingOrder=state.battingOrder.filter(x=>x!==p);
+    state.pendingBatting=state.pendingBatting.filter(x=>x!==p);
     delete state.prefs[p]; delete state.counts[p];
-    Object.keys(state.lineup).forEach(pos => { if (state.lineup[pos] === p) delete state.lineup[pos]; });
+    Object.keys(state.lineup).forEach(pos=>{if(state.lineup[pos]===p)delete state.lineup[pos];});
     saveState(); render();
-  }, "btn-red");
+  },"btn-red");
 }
 function resetAll() {
-  showModal("RESET ALL STATS", "Reset all stats, history, and games? Roster, preferences, and batting order are kept.", "RESET", () => {
-    state.counts = freshCounts(state.players);
-    state.history = []; state.games = []; state.inning = 1; state.game = 1; state.lineup = {};
-    saveState(); showToast("All stats reset"); render();
-  }, "btn-red");
+  showModal("Reset All Stats","Reset all stats, history, and games? Roster, preferences, and batting order are kept.","Reset",()=>{
+    state.counts=freshCounts(state.players);
+    state.history=[]; state.games=[]; state.inning=1; state.game=1; state.lineup={};
+    saveState(); showToast("Stats reset"); render();
+  },"btn-red");
 }
 
 // ── RENDER LINEUP ─────────────────────────────────────────────────────────────
 function renderLineupTab() {
   updateHeaderSub();
-  const assigned = Object.values(state.lineup);
-  const unassigned = state.players.filter(p => !assigned.includes(p));
-  const ready = Object.keys(state.lineup).length >= 9;
+  const assigned=Object.values(state.lineup);
+  const unassigned=state.players.filter(p=>!assigned.includes(p));
+  const ready=Object.keys(state.lineup).length>=9;
 
-  let html = `
+  let html=`
   <div class="game-banner">
     <div>
       <div class="game-num">GAME ${state.game}</div>
-      <div class="game-meta">${state.inning - 1} inning(s) played this game</div>
+      <div class="game-meta">${state.inning-1} inning(s) played</div>
     </div>
-    <button class="btn btn-amber" onclick="newGame()">⚾ END GAME ${state.game}</button>
+    <button class="btn btn-red" onclick="newGame()">End Game ${state.game}</button>
   </div>
   <div class="inning-header">
-    <div class="inning-num">INNING <span>${state.inning}</span></div>
+    <div class="inning-display">
+      <span class="inning-label">INNING</span>
+      <span class="inning-val">${state.inning}</span>
+    </div>
     <div class="btn-row">
-      <button class="btn btn-blue" onclick="autoAssign()">⚡ AUTO-ASSIGN</button>
-      <button class="btn btn-green" onclick="commitInning()" ${ready?'':'disabled'}>✓ COMMIT INNING</button>
+      <button class="btn btn-navy" onclick="autoAssign()">⚡ Auto-Assign</button>
+      <button class="btn btn-red" onclick="commitInning()" ${ready?'':'disabled'}>✓ Commit Inning</button>
     </div>
   </div>
   <div class="two-col"><div>
-    <div class="label">Field Positions</div>`;
+  <div class="label">Field Positions</div>`;
 
-  POSITIONS.forEach(pos => {
-    const player = state.lineup[pos] || "";
-    const pref = player ? (state.prefs[player]?.[pos] || "neutral") : "neutral";
-    const borderColor = player ? PREF_COLOR[pref]+"60" : "var(--border)";
-    const icon = player && pref!=="neutral" ? (pref==="preferred"?" ★":" !") : "";
-    html += `
-    <div class="pos-row" style="border-color:${borderColor}">
+  POSITIONS.forEach(pos=>{
+    const player=state.lineup[pos]||"";
+    const pref=player?(state.prefs[player]?.[pos]||"neutral"):"neutral";
+    const isPreferred=pref==="preferred", isAvoid=pref==="avoid";
+    const borderColor=isPreferred?"#E81828":isAvoid?"#333":"#2a2a2a";
+    html+=`
+    <div class="pos-row" style="border-left-color:${borderColor}">
       <div class="pos-tag">${pos}</div>
       <div class="pos-name">${POS_NAMES[pos]}</div>
-      <select class="pos-select" onchange="setPos('${pos}',this.value)" style="color:${player?PREF_COLOR[pref]:'var(--text3)'}">
-        <option value="">— unset —</option>
-        ${state.players.map(p => {
-          const taken = assigned.includes(p) && state.lineup[pos] !== p;
-          const pp = state.prefs[p]?.[pos] || "neutral";
-          const ico = pp==="preferred"?" ★":pp==="avoid"?" ✗":"";
+      <select class="pos-select" onchange="setPos('${pos}',this.value)">
+        <option value="">— open —</option>
+        ${state.players.map(p=>{
+          const taken=assigned.includes(p)&&state.lineup[pos]!==p;
+          const pp=state.prefs[p]?.[pos]||"neutral";
+          const ico=pp==="preferred"?" ★":pp==="avoid"?" ✗":"";
           return `<option value="${p}" ${player===p?"selected":""} ${taken?"disabled":""}>${p}${ico}</option>`;
         }).join("")}
       </select>
-      <span style="color:${PREF_COLOR[pref]};font-size:13px;width:12px">${icon}</span>
+      ${isPreferred?`<span style="color:#E81828;font-size:14px">★</span>`:""}
     </div>`;
   });
 
-  html += `</div><div>
-    <div class="label">Bench (${unassigned.length})</div>`;
-  if (unassigned.length === 0) {
-    html += `<div style="color:var(--green);text-align:center;padding:16px;font-size:13px">All players assigned ✓</div>`;
+  html+=`</div><div>
+  <div class="label">Bench (${unassigned.length})</div>`;
+  if(unassigned.length===0){
+    html+=`<div style="color:#E81828;text-align:center;padding:16px;font-size:13px;letter-spacing:1px">ALL PLAYERS ASSIGNED ✓</div>`;
   } else {
-    unassigned.forEach(p => {
-      html += `<div class="bench-item"><span>${p}</span><span style="color:var(--text3);font-size:11px">${totalInnings(p)} inn. this game</span></div>`;
+    unassigned.forEach(p=>{
+      html+=`<div class="bench-item"><span>${p}</span><span style="color:var(--text3);font-size:11px">${totalInnings(p)} inn.</span></div>`;
     });
   }
-  html += `
-    <div style="margin-top:20px">
-      <div class="label">Manage Roster</div>
-      <div class="input-row">
-        <input id="new-player-input" class="text-input" placeholder="Player name..." onkeydown="if(event.key==='Enter')addPlayer()">
-        <button class="btn btn-green" onclick="addPlayer()">+ ADD</button>
-      </div>
-      ${state.players.map(p => `
-        <div class="roster-item">
-          <span style="color:var(--text2)">${p}</span>
-          <button class="rm-btn" onclick="removePlayer('${p}')">×</button>
-        </div>`).join("")}
-    </div>
+
+  html+=`
+  <hr class="stitch">
+  <div class="label">Roster</div>
+  <div class="input-row">
+    <input id="new-player-input" class="text-input" placeholder="Add player..." onkeydown="if(event.key==='Enter')addPlayer()">
+    <button class="btn btn-red" onclick="addPlayer()">Add</button>
+  </div>
+  ${state.players.map(p=>`
+    <div class="roster-item">
+      <span style="color:var(--text2)">${p}</span>
+      <button class="rm-btn" onclick="removePlayer('${p}')">×</button>
+    </div>`).join("")}
   </div></div>`;
-  document.getElementById("tab-lineup").innerHTML = html;
+
+  document.getElementById("tab-lineup").innerHTML=html;
 }
 
 // ── RENDER BATTING ────────────────────────────────────────────────────────────
 function renderBattingTab() {
-  const committed = state.battingCommitted;
-  const order = committed ? state.battingOrder : state.pendingBatting;
+  const committed=state.battingCommitted;
+  const order=committed?state.battingOrder:state.pendingBatting;
 
-  let html = `
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+  let html=`
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
     <div>
-      <div class="label" style="margin:0">BATTING ORDER — GAME ${state.game}</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px">
-        ${committed
-          ? "Order is locked for this game."
-          : "Set order then commit. Rotates automatically each new game."}
+      <div class="label" style="margin:0;border:none">Batting Order — Game ${state.game}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px;letter-spacing:1px">
+        ${committed?"Order locked for this game.":"Arrange order then commit. Rotates each new game."}
       </div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       ${committed
-        ? `<span class="batting-committed-badge">🔒 LOCKED</span>
-           <button class="btn btn-purple" onclick="editBattingOrder()">✎ EDIT</button>`
-        : `<button class="btn btn-purple" onclick="commitBattingOrder()">🔒 COMMIT ORDER</button>`}
+        ?`<span class="batting-committed-badge">🔒 LOCKED</span>
+          <button class="btn btn-navy" onclick="editBattingOrder()">Edit</button>`
+        :`<button class="btn btn-navy" onclick="commitBattingOrder()">🔒 Lock Order</button>`}
     </div>
   </div>
   <div class="batting-order-list">`;
 
-  order.forEach((player, idx) => {
-    if (committed) {
-      html += `
-      <div class="batting-slot">
-        <div class="batting-num">${idx + 1}</div>
+  order.forEach((player,idx)=>{
+    if(committed){
+      html+=`
+      <div class="batting-slot" style="border-left-color:#E81828">
+        <div class="batting-num">${idx+1}</div>
         <div class="batting-name">${player}</div>
       </div>`;
     } else {
-      html += `
+      html+=`
       <div class="batting-slot">
-        <div class="batting-num">${idx + 1}</div>
-        <select class="batting-select" onchange="setBatterAtSlot(${idx}, this.value)">
-          ${order.map(p => `<option value="${p}" ${p===player?"selected":""}>${p}</option>`).join("")}
+        <div class="batting-num">${idx+1}</div>
+        <select class="batting-select" onchange="setBatterAtSlot(${idx},this.value)">
+          ${order.map(p=>`<option value="${p}" ${p===player?"selected":""}>${p}</option>`).join("")}
         </select>
         <div class="batting-arrows">
           <button class="arrow-btn" onclick="moveBatter(${idx},-1)" ${idx===0?"disabled":""}>▲</button>
@@ -571,40 +694,37 @@ function renderBattingTab() {
     }
   });
 
-  html += `</div>`;
+  html+=`</div>`;
 
-  // show next game preview if committed
-  if (committed && state.battingOrder.length > 0) {
-    const nextOrder = [
-      state.battingOrder[state.battingOrder.length - 1],
-      ...state.battingOrder.slice(0, state.battingOrder.length - 1)
-    ];
-    html += `
-    <div style="margin-top:24px">
-      <div class="label">NEXT GAME PREVIEW <span style="color:var(--text3);font-size:9px;letter-spacing:1px">(after End Game)</span></div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">
-        ${nextOrder.map((p,i) => `
-          <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--bg2);border-radius:4px;border:1px solid var(--border);font-size:12px">
-            <span style="color:var(--purple);font-weight:900;min-width:16px">${i+1}</span>
-            <span style="color:var(--text3)">${p}</span>
-          </div>`).join("")}
-      </div>
+  if(committed&&state.battingOrder.length>0){
+    const nextOrder=[state.battingOrder[state.battingOrder.length-1],...state.battingOrder.slice(0,-1)];
+    html+=`
+    <hr class="stitch">
+    <div class="label">Next Game Order <span style="color:var(--text3);font-size:9px;letter-spacing:1px">(preview)</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px">
+      ${nextOrder.map((p,i)=>`
+        <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--bg2);border-radius:2px;border:1px solid var(--border);font-size:12px">
+          <span style="color:var(--red);font-weight:700;min-width:16px;font-family:'Oswald',Arial,sans-serif">${i+1}</span>
+          <span style="color:var(--text3)">${p}</span>
+        </div>`).join("")}
     </div>`;
   }
 
-  document.getElementById("tab-batting").innerHTML = html;
+  document.getElementById("tab-batting").innerHTML=html;
 }
 
 // ── RENDER PREFS ──────────────────────────────────────────────────────────────
 function renderPrefsTab() {
-  let html = `
-  <div class="legend">
-    ${Object.entries(PREF_COLOR).map(([k,c]) => `<span style="color:${c}">${PREF_ICON[k]} ${k.charAt(0).toUpperCase()+k.slice(1)}</span>`).join("")}
-    <span style="color:var(--muted);font-size:10px">— tap to cycle</span>
+  let html=`
+  <div class="label" style="margin-bottom:8px">Position Preferences — tap to cycle</div>
+  <div style="display:flex;gap:16px;font-size:12px;margin-bottom:14px;flex-wrap:wrap">
+    <span style="color:#E81828">★ Preferred</span>
+    <span style="color:#888">✗ Avoid</span>
+    <span style="color:#444">○ Neutral</span>
   </div>
   <div class="prefs-scroll"><table>
     <thead><tr>
-      <th class="player-col">PLAYER</th>
+      <th class="player-col">Player</th>
       ${POSITIONS.map(p=>`<th>${p}</th>`).join("")}
     </tr></thead>
     <tbody>
@@ -612,128 +732,120 @@ function renderPrefsTab() {
       <tr>
         <td class="player-col">${player}</td>
         ${POSITIONS.map(pos=>{
-          const pref=state.prefs[player]?.[pos]||"neutral", c=PREF_COLOR[pref];
-          return `<td><button class="pref-btn" style="border-color:${c};background:${c}20;color:${c}" onclick="cyclePref('${player}','${pos}')">${PREF_ICON[pref]}</button></td>`;
+          const pref=state.prefs[player]?.[pos]||"neutral";
+          const bc=PREF_COLOR[pref], tc=PREF_TEXT[pref];
+          return `<td><button class="pref-btn" style="border-color:${bc};background:${bc}22;color:${tc}" onclick="cyclePref('${player}','${pos}')">${PREF_ICON[pref]}</button></td>`;
         }).join("")}
       </tr>`).join("")}
     </tbody>
   </table></div>`;
-  document.getElementById("tab-prefs").innerHTML = html;
+  document.getElementById("tab-prefs").innerHTML=html;
 }
 
 // ── RENDER STATS ──────────────────────────────────────────────────────────────
 function allGamesCounts() {
-  const merged = {};
-  state.players.forEach(p => {
-    merged[p] = { bench: 0 };
-    POSITIONS.forEach(pos => { merged[p][pos] = 0; });
-    state.games.forEach(g => {
-      if (!g.counts?.[p]) return;
-      POSITIONS.forEach(pos => { merged[p][pos] += g.counts[p][pos] || 0; });
-      merged[p].bench += g.counts[p].bench || 0;
+  const merged={};
+  state.players.forEach(p=>{
+    merged[p]={bench:0};
+    POSITIONS.forEach(pos=>{merged[p][pos]=0;});
+    state.games.forEach(g=>{
+      if(!g.counts?.[p]) return;
+      POSITIONS.forEach(pos=>{merged[p][pos]+=g.counts[p][pos]||0;});
+      merged[p].bench+=g.counts[p].bench||0;
     });
-    POSITIONS.forEach(pos => { merged[p][pos] += state.counts[p]?.[pos] || 0; });
-    merged[p].bench += state.counts[p]?.bench || 0;
+    POSITIONS.forEach(pos=>{merged[p][pos]+=state.counts[p]?.[pos]||0;});
+    merged[p].bench+=state.counts[p]?.bench||0;
   });
   return merged;
 }
 
 function renderStatsTab() {
-  const allCounts = allGamesCounts();
-  const totalAllGames = p => POSITIONS.reduce((s,pos) => s + (allCounts[p]?.[pos]||0), 0);
-  const maxInn = Math.max(...state.players.map(totalAllGames), 1);
-  const totalInningsAllGames = state.history.length;
-  let html = `
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-    <div>
-      <div class="label" style="margin:0">ALL GAMES — ${state.game} game(s), ${totalInningsAllGames} inning(s)</div>
-    </div>
-    <button class="btn btn-red" onclick="resetAll()">↺ RESET ALL</button>
+  const allCounts=allGamesCounts();
+  const totalAll=p=>POSITIONS.reduce((s,pos)=>s+(allCounts[p]?.[pos]||0),0);
+  const maxInn=Math.max(...state.players.map(totalAll),1);
+
+  let html=`
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+    <div class="label" style="margin:0;border:none">All Games — ${state.game} game(s) · ${state.history.length} inning(s)</div>
+    <button class="btn btn-red" onclick="resetAll()">↺ Reset All</button>
   </div>
   <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table>
     <thead><tr>
-      <th class="player-col">PLAYER</th>
+      <th class="player-col">Player</th>
       ${POSITIONS.map(p=>`<th>${p}</th>`).join("")}
-      <th style="color:var(--muted)">BENCH</th>
-      <th style="color:var(--green)">TOTAL</th>
+      <th style="color:var(--muted)">Bench</th>
+      <th style="color:var(--red)">Total</th>
     </tr></thead>
     <tbody>
     ${state.players.map(player=>{
-      const total=totalAllGames(player);
+      const total=totalAll(player);
       return `<tr>
         <td class="player-col">${player}</td>
         ${POSITIONS.map(pos=>{
           const count=allCounts[player]?.[pos]||0;
           const pref=state.prefs[player]?.[pos]||"neutral";
-          if(!count) return `<td><span style="color:var(--border)">—</span></td>`;
-          const bg=pref==="preferred"?"var(--green-dim)":pref==="avoid"?"var(--red-dim)":"var(--blue-dim)";
-          const c=pref==="preferred"?"var(--green)":pref==="avoid"?"var(--red)":"#93c5fd";
+          if(!count) return `<td><span style="color:var(--border2)">—</span></td>`;
+          const bg=pref==="preferred"?"#5a0910":pref==="avoid"?"#222":"#001540";
+          const c=pref==="preferred"?"#E81828":pref==="avoid"?"#666":"#6b9fff";
           return `<td><span class="stat-badge" style="background:${bg};color:${c}">${count}</span></td>`;
         }).join("")}
         <td style="text-align:center"><span style="color:var(--text3);font-size:12px">${allCounts[player]?.bench||0}</span></td>
         <td style="text-align:center">
           <div class="progress-bar"><div class="progress-fill" style="width:${(total/maxInn)*100}%"></div></div>
-          <span style="color:var(--green);font-weight:700;margin-left:6px">${total}</span>
+          <span style="color:var(--red);font-weight:700;margin-left:6px;font-family:'Oswald',Arial,sans-serif">${total}</span>
         </td>
       </tr>`;
     }).join("")}
     </tbody>
   </table></div>`;
-  document.getElementById("tab-stats").innerHTML = html;
+  document.getElementById("tab-stats").innerHTML=html;
 }
 
 // ── RENDER HISTORY ────────────────────────────────────────────────────────────
 function renderHistoryTab() {
-  const allGames = [...new Set(state.history.map(h=>h.game))].sort((a,b)=>b-a);
-  let html = `<div class="label">${state.history.length} inning(s) across ${allGames.length} game(s)</div>`;
-  if (!state.history.length) {
-    html += `<div class="empty">No innings committed yet.<br>Set a lineup and tap "Commit Inning".</div>`;
+  const allGames=[...new Set(state.history.map(h=>h.game))].sort((a,b)=>b-a);
+  let html=`<div class="label">${state.history.length} inning(s) across ${allGames.length} game(s)</div>`;
+  if(!state.history.length){
+    html+=`<div class="empty">No innings recorded yet.<br>Set a lineup and tap Commit Inning.</div>`;
   } else {
-    allGames.forEach(gameNum => {
-      const gameInnings = state.history.filter(h=>h.game===gameNum).reverse();
-      html += `
+    allGames.forEach(gameNum=>{
+      const gameInnings=state.history.filter(h=>h.game===gameNum).reverse();
+      html+=`
       <div class="game-divider">
         <div class="game-divider-line"></div>
-        <div class="game-divider-label">⚾ GAME ${gameNum}${gameNum===state.game?" — IN PROGRESS":` — ${gameInnings.length} inning(s)`}</div>
+        <div class="game-divider-label">⚾ GAME ${gameNum}${gameNum===state.game?" — IN PROGRESS":` — ${gameInnings.length} inn.`}</div>
         <div class="game-divider-line"></div>
       </div>`;
-      gameInnings.forEach(({inning, lineup, bench}) => {
-        html += `<div class="inning-card">
+      gameInnings.forEach(({inning,lineup,bench})=>{
+        html+=`<div class="inning-card">
           <div class="inning-title">INNING ${inning}</div>
           <div class="pos-chips">
           ${POSITIONS.map(pos=>{
             const player=lineup[pos];
             const pref=player?(state.prefs[player]?.[pos]||"neutral"):"neutral";
-            const c=player?PREF_COLOR[pref]:"var(--text3)";
-            return `<div class="pos-chip" style="border-color:${c}40">
-              <span style="color:var(--green);font-weight:700;margin-right:6px">${pos}</span>
+            const c=pref==="preferred"?"#E81828":pref==="avoid"?"#555":"var(--text3)";
+            return `<div class="pos-chip" style="border-color:${c}50">
+              <span style="color:var(--cream2);font-weight:700;margin-right:5px;font-family:'Oswald',Arial,sans-serif">${pos}</span>
               <span style="color:${c}">${player||"—"}</span>
             </div>`;
           }).join("")}
           </div>
           ${bench&&bench.length?`
-          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
-            <span style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-right:10px">BENCH</span>
-            ${bench.map(p=>`<span style="display:inline-block;margin:3px 4px 3px 0;padding:4px 10px;border-radius:4px;background:var(--bg);border:1px solid var(--border);font-size:11px;color:var(--text3)">${p}</span>`).join("")}
+          <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border2)">
+            <span style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-right:10px;font-family:'Oswald',Arial,sans-serif">BENCH</span>
+            ${bench.map(p=>`<span style="display:inline-block;margin:3px 4px 3px 0;padding:4px 9px;border-radius:2px;background:#111;border:1px solid var(--border);font-size:11px;color:var(--text3)">${p}</span>`).join("")}
           </div>`:""}
         </div>`;
       });
     });
   }
-  document.getElementById("tab-history").innerHTML = html;
+  document.getElementById("tab-history").innerHTML=html;
 }
 
 function render() {
-  renderLineupTab();
-  renderBattingTab();
-  renderPrefsTab();
-  renderStatsTab();
-  renderHistoryTab();
-  updateHeaderSub();
+  renderLineupTab(); renderBattingTab(); renderPrefsTab(); renderStatsTab(); renderHistoryTab(); updateHeaderSub();
 }
-
-render();
-showTab("lineup");
+render(); showTab("lineup");
 </script>
 
 </body>
