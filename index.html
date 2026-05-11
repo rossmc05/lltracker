@@ -1359,10 +1359,108 @@ async function exportGamePDF(gameNum) {
     doc.setLineWidth(0.5);
     doc.line(pageW/2, 62, pageW/2, pageH - margin);
 
+    // --- DIAMOND GRAPHIC (bottom half of page) ---
+    const dTop = Math.max(y, ry) + 30;
+    const dAvail = pageH - margin - 20 - dTop;
+    const dSize = Math.min(dAvail, pageW - margin * 2);
+    const dcx = pageW / 2;
+    const dcy = dTop + dSize * 0.52;
+    const r = dSize * 0.38; // radius of diamond
+
+    // Section label
+    doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(150,150,150);
+    doc.text('FIELD DIAGRAM', margin, dTop - 8);
+
+    // Outfield arc
+    doc.setDrawColor(180, 200, 180);
+    doc.setLineWidth(1);
+    doc.lines(
+      (function(){
+        const pts = [];
+        for(let a = 210; a <= 330; a += 5) {
+          const rad = a * Math.PI / 180;
+          pts.push([Math.cos(rad) * r * 1.7, Math.sin(rad) * r * 1.7]);
+        }
+        return pts.map((p,i) => i===0?p:[p[0]-pts[i-1][0], p[1]-pts[i-1][1]]);
+      })(),
+      dcx + Math.cos(210*Math.PI/180)*r*1.7,
+      dcy + Math.sin(210*Math.PI/180)*r*1.7, [1,1], 'S'
+    );
+
+    // Grass infield fill
+    const homeP  = [dcx,           dcy + r * 0.85];
+    const firstP = [dcx + r * 0.8, dcy + r * 0.15];
+    const secP   = [dcx,           dcy - r * 0.55];
+    const thirdP = [dcx - r * 0.8, dcy + r * 0.15];
+
+    doc.setFillColor(220, 240, 220);
+    doc.setDrawColor(160, 200, 160);
+    doc.setLineWidth(0.5);
+    doc.triangle(homeP[0], homeP[1], firstP[0], firstP[1], secP[0], secP[1], 'FD');
+    doc.triangle(homeP[0], homeP[1], thirdP[0], thirdP[1], secP[0], secP[1], 'FD');
+
+    // Basepaths
+    doc.setDrawColor(160, 130, 90);
+    doc.setLineWidth(1.5);
+    doc.line(homeP[0], homeP[1], firstP[0], firstP[1]);
+    doc.line(firstP[0], firstP[1], secP[0], secP[1]);
+    doc.line(secP[0], secP[1], thirdP[0], thirdP[1]);
+    doc.line(thirdP[0], thirdP[1], homeP[0], homeP[1]);
+
+    // Bases (white squares)
+    const bs = r * 0.07;
+    [[firstP],[secP],[thirdP]].forEach(([b]) => {
+      doc.setFillColor(255,255,255);
+      doc.setDrawColor(100,100,100);
+      doc.setLineWidth(0.5);
+      doc.rect(b[0]-bs, b[1]-bs, bs*2, bs*2, 'FD');
+    });
+
+    // Home plate
+    doc.setFillColor(255,255,255);
+    doc.triangle(homeP[0]-bs, homeP[1]-bs, homeP[0]+bs, homeP[1]-bs, homeP[0], homeP[1]+bs, 'FD');
+
+    // Pitcher mound
+    doc.setFillColor(200,175,130);
+    const mound = [dcx, dcy + r * 0.18];
+    doc.circle(mound[0], mound[1], r*0.04, 'F');
+
+    // Player position labels
+    const posCoords = {
+      P:    [dcx,              dcy + r * 0.18],
+      C:    [dcx,              dcy + r * 0.85],
+      '1B': [dcx + r * 0.8,   dcy + r * 0.15],
+      '2B': [dcx + r * 0.38,  dcy - r * 0.28],
+      '3B': [dcx - r * 0.8,   dcy + r * 0.15],
+      SS:   [dcx - r * 0.38,  dcy - r * 0.28],
+      LF:   [dcx - r * 0.85,  dcy - r * 0.78],
+      CF:   [dcx,              dcy - r * 1.05],
+      RF:   [dcx + r * 0.85,  dcy - r * 0.78],
+    };
+
+    POSITIONS.forEach(pos => {
+      const [px, py] = posCoords[pos];
+      const player = entry.lineup[pos] || '';
+      const bw = 70, bh = 22;
+
+      // Red pill background
+      doc.setFillColor(player ? 232 : 200, player ? 24 : 200, player ? 40 : 200);
+      doc.roundedRect(px - bw/2, py - bh/2, bw, bh, 3, 3, 'F');
+
+      // Position tag
+      doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,200);
+      doc.text(pos, px, py - 3, {align:'center'});
+
+      // Player name
+      doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+      const name = player || '—';
+      doc.text(name.length > 9 ? name.substring(0,9) : name, px, py + 7, {align:'center'});
+    });
+
     // Footer
     doc.setFontSize(8); doc.setTextColor(180,180,180); doc.setFont('helvetica','normal');
-    doc.text(`Phillies Lineup Tracker  ·  Game ${gameNum}  ·  Inning ${entry.inning}`, margin, pageH - 20);
-    doc.text(`${new Date().toLocaleDateString()}`, pageW - margin - 60, pageH - 20);
+    doc.text('Phillies Lineup Tracker  ·  Game '+gameNum+'  ·  Inning '+entry.inning, margin, pageH - 20);
+    doc.text(new Date().toLocaleDateString(), pageW - margin - 60, pageH - 20);
   });
 
   // Open PDF
