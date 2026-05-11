@@ -41,10 +41,10 @@ min-height: 100vh;
 
 /* HEADER */
 .header {
-background: var(–red);
+background: #E81828;
 background-image:
 repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px);
-border-bottom: 4px solid var(–navy);
+border-bottom: 4px solid #002D72;
 padding: 0;
 }
 .header-inner {
@@ -55,7 +55,7 @@ max-width: 900px; margin: 0 auto;
 .header-brand { display: flex; align-items: center; gap: 12px; }
 .header-logo {
 width: 48px; height: 48px; border-radius: 50%;
-background: var(–navy); border: 3px solid var(–cream);
+background: #002D72; border: 3px solid #F5F0E8;
 display: flex; align-items: center; justify-content: center;
 font-size: 22px; flex-shrink: 0;
 box-shadow: 0 2px 8px rgba(0,0,0,0.5);
@@ -63,14 +63,14 @@ box-shadow: 0 2px 8px rgba(0,0,0,0.5);
 .header-title {
 font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif; font-stretch: condensed; font-weight: 700;
 font-size: 20px; font-weight: 700; letter-spacing: 2px;
-color: var(–cream); text-transform: uppercase; line-height: 1.1;
+color: #F5F0E8; text-transform: uppercase; line-height: 1.1;
 text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
 }
 .header-sub { font-size: 10px; color: rgba(245,240,232,0.6); letter-spacing: 3px; margin-top: 2px; }
 
 /* TABS */
 .tabs {
-background: var(–navy);
+background: #002D72;
 border-bottom: 2px solid #000;
 padding: 0 16px;
 display: flex; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -84,7 +84,7 @@ font-weight: 600; font-size: 12px; letter-spacing: 2px; text-transform: uppercas
 cursor: pointer; white-space: nowrap; transition: color 0.15s;
 }
 .tab-btn.active {
-color: var(–cream); border-bottom-color: var(–red);
+color: #F5F0E8; border-bottom-color: #E81828;
 }
 
 .content { padding: 16px; max-width: 900px; margin: 0 auto; }
@@ -97,24 +97,24 @@ font-weight: 600; font-size: 12px; letter-spacing: 2px;
 cursor: pointer; border: 2px solid; text-transform: uppercase;
 transition: opacity 0.15s;
 }
-.btn-red    { border-color: var(–red);   background: var(–red-dim);   color: var(–red); }
-.btn-navy   { border-color: var(–navy);  background: var(–navy-dim);  color: #6b9fff; }
-.btn-cancel { border-color: var(–border2); background: #222; color: var(–text2); }
-.btn-gold   { border-color: var(–gold);  background: var(–gold-dim);  color: var(–gold); }
-.btn-cream  { border-color: var(–cream2); background: #2a2520; color: var(–cream); }
+.btn-red    { border-color: #E81828;   background: #5a0910;   color: #E81828; }
+.btn-navy   { border-color: #002D72;  background: #001540;  color: #6b9fff; }
+.btn-cancel { border-color: #333; background: #222; color: #b8b0a0; }
+.btn-gold   { border-color: #C5A028;  background: #3a2d0a;  color: #C5A028; }
+.btn-cream  { border-color: #EDE8DE; background: #2a2520; color: #F5F0E8; }
 .btn:disabled { opacity: 0.25; cursor: not-allowed; }
 
 /* SECTION LABEL */
 .label {
 font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
-font-size: 11px; color: var(–muted); letter-spacing: 3px;
+font-size: 11px; color: #666; letter-spacing: 3px;
 margin-bottom: 10px; text-transform: uppercase;
-border-bottom: 1px solid var(–border); padding-bottom: 6px;
+border-bottom: 1px solid #2a2a2a; padding-bottom: 6px;
 }
 
 /* SCOREBOARD BANNER */
 .game-banner {
-background: var(–navy);
+background: #002D72;
 background-image: repeating-linear-gradient(
 90deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 3px
 );
@@ -126,20 +126,20 @@ box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 8px rgba(0,0,0,0.4);
 }
 .game-num {
 font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
-font-size: 16px; font-weight: 700; color: var(–cream); letter-spacing: 3px;
+font-size: 16px; font-weight: 700; color: #F5F0E8; letter-spacing: 3px;
 }
-.game-meta { font-size: 11px; color: var(–text2); letter-spacing: 1px; margin-top: 2px; }
+.game-meta { font-size: 11px; color: #b8b0a0; letter-spacing: 1px; margin-top: 2px; }
 
 /* INNING HEADER */
 .inning-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
 .inning-display {
-background: #111; border: 1px solid var(–border2); border-radius: 4px;
+background: #111; border: 1px solid #333; border-radius: 4px;
 padding: 8px 16px; display: flex; align-items: baseline; gap: 8px;
 }
-.inning-label { font-size: 10px; color: var(–muted); letter-spacing: 3px; font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif; }
+.inning-label { font-size: 10px; color: #666; letter-spacing: 3px; font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif; }
 .inning-val {
 font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
-font-size: 32px; font-weight: 700; color: var(–red); line-height: 1;
+font-size: 32px; font-weight: 700; color: #E81828; line-height: 1;
 }
 .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
@@ -147,18 +147,18 @@ font-size: 32px; font-weight: 700; color: var(–red); line-height: 1;
 .pos-row {
 display: flex; align-items: center; gap: 10px;
 margin-bottom: 6px; padding: 8px 12px;
-background: var(–bg2); border-radius: 3px;
-border-left: 3px solid var(–border2); border-top: 1px solid var(–border); border-right: 1px solid var(–border); border-bottom: 1px solid var(–border);
+background: #1a1a1a; border-radius: 3px;
+border-left: 3px solid #333; border-top: 1px solid #2a2a2a; border-right: 1px solid #2a2a2a; border-bottom: 1px solid #2a2a2a;
 transition: border-left-color 0.15s;
 }
 .pos-tag {
 width: 36px; text-align: center; font-weight: 700; font-size: 13px;
-color: var(–cream2); letter-spacing: 1px; flex-shrink: 0;
+color: #EDE8DE; letter-spacing: 1px; flex-shrink: 0;
 font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 }
-.pos-name { font-size: 10px; color: var(–text3); flex: 1; letter-spacing: 1px; }
+.pos-name { font-size: 10px; color: #555; flex: 1; letter-spacing: 1px; }
 .pos-select {
-background: #111; border: 1px solid var(–border2); color: var(–text2);
+background: #111; border: 1px solid #333; color: #b8b0a0;
 border-radius: 3px; padding: 6px 8px;
 font-family: ‘Helvetica Neue’, Arial, sans-serif; font-size: 13px;
 cursor: pointer; max-width: 150px; width: 100%;
@@ -166,10 +166,10 @@ cursor: pointer; max-width: 150px; width: 100%;
 
 /* BENCH */
 .bench-item {
-padding: 9px 12px; margin-bottom: 5px; background: var(–bg2); border-radius: 3px;
-border: 1px solid var(–border); color: var(–text2); font-size: 13px; font-weight: 600;
+padding: 9px 12px; margin-bottom: 5px; background: #1a1a1a; border-radius: 3px;
+border: 1px solid #2a2a2a; color: #b8b0a0; font-size: 13px; font-weight: 600;
 display: flex; justify-content: space-between; align-items: center;
-border-left: 3px solid var(–border2);
+border-left: 3px solid #333;
 }
 
 /* ROSTER */
@@ -177,94 +177,94 @@ border-left: 3px solid var(–border2);
 display: flex; justify-content: space-between; align-items: center;
 padding: 7px 10px; margin-bottom: 4px;
 background: #111; border-radius: 3px; font-size: 13px;
-border: 1px solid var(–border);
+border: 1px solid #2a2a2a;
 }
-.rm-btn { background: none; border: none; color: var(–muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; }
-.rm-btn:active { color: var(–red); }
+.rm-btn { background: none; border: none; color: #666; cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; }
+.rm-btn:active { color: #E81828; }
 
 /* INPUT */
 .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
 .text-input {
 flex: 1; padding: 9px 12px; background: #111;
-border: 1px solid var(–border2); border-radius: 3px;
-color: var(–text); font-family: ‘Helvetica Neue’, Arial, sans-serif; font-size: 13px;
+border: 1px solid #333; border-radius: 3px;
+color: #F5F0E8; font-family: ‘Helvetica Neue’, Arial, sans-serif; font-size: 13px;
 }
-.text-input::placeholder { color: var(–text3); }
-.text-input:focus { outline: none; border-color: var(–red); }
+.text-input::placeholder { color: #555; }
+.text-input:focus { outline: none; border-color: #E81828; }
 
 /* TABLE */
 .prefs-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; font-size: 12px; }
 th {
-padding: 8px 6px; color: var(–muted); font-weight: 700; letter-spacing: 2px;
-font-size: 10px; border-bottom: 2px solid var(–red); text-align: center;
+padding: 8px 6px; color: #666; font-weight: 700; letter-spacing: 2px;
+font-size: 10px; border-bottom: 2px solid #E81828; text-align: center;
 font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 }
 th.player-col { text-align: left; padding-left: 12px; }
-td { padding: 8px 4px; text-align: center; border-bottom: 1px solid var(–border); }
-td.player-col { padding: 8px 12px; color: var(–text); font-weight: 700; text-align: left; white-space: nowrap; }
-tr:nth-child(even) td { background: var(–bg2); }
-tr:nth-child(odd) td  { background: var(–bg3); }
+td { padding: 8px 4px; text-align: center; border-bottom: 1px solid #2a2a2a; }
+td.player-col { padding: 8px 12px; color: #F5F0E8; font-weight: 700; text-align: left; white-space: nowrap; }
+tr:nth-child(even) td { background: #1a1a1a; }
+tr:nth-child(odd) td  { background: #141414; }
 
 .pref-btn {
 width: 30px; height: 30px; border-radius: 3px; border: 2px solid; cursor: pointer; font-size: 14px;
 display: inline-flex; align-items: center; justify-content: center; margin: auto;
 }
 .stat-badge { display: inline-block; width: 26px; height: 26px; line-height: 26px; border-radius: 2px; font-size: 12px; font-weight: 700; text-align: center; font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif; }
-.progress-bar { height: 5px; background: var(–border); border-radius: 2px; width: 50px; overflow: hidden; display: inline-block; vertical-align: middle; }
-.progress-fill { height: 100%; background: var(–red); border-radius: 2px; }
+.progress-bar { height: 5px; background: #2a2a2a; border-radius: 2px; width: 50px; overflow: hidden; display: inline-block; vertical-align: middle; }
+.progress-fill { height: 100%; background: #E81828; border-radius: 2px; }
 
 /* INNING CARDS */
 .inning-card {
-margin-bottom: 12px; padding: 12px 14px; background: var(–bg2); border-radius: 3px;
-border: 1px solid var(–border); border-top: 2px solid var(–red);
+margin-bottom: 12px; padding: 12px 14px; background: #1a1a1a; border-radius: 3px;
+border: 1px solid #2a2a2a; border-top: 2px solid #E81828;
 }
 .inning-title {
-color: var(–cream); font-weight: 700; font-size: 12px; margin-bottom: 10px;
+color: #F5F0E8; font-weight: 700; font-size: 12px; margin-bottom: 10px;
 letter-spacing: 3px; font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 }
 .pos-chips { display: flex; flex-wrap: wrap; gap: 5px; }
 .pos-chip {
 padding: 4px 9px; border-radius: 2px; background: #111; font-size: 11px;
-border: 1px solid var(–border);
+border: 1px solid #2a2a2a;
 }
 
 /* GAME DIVIDER */
 .game-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0 12px; }
-.game-divider-line { flex: 1; height: 1px; background: var(–red); opacity: 0.3; }
+.game-divider-line { flex: 1; height: 1px; background: #E81828; opacity: 0.3; }
 .game-divider-label {
-font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(–red);
+font-size: 11px; font-weight: 700; letter-spacing: 3px; color: #E81828;
 white-space: nowrap; font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 }
 
 /* BATTING */
 .batting-slot {
 display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
-padding: 9px 12px; background: var(–bg2); border-radius: 3px;
-border: 1px solid var(–border); border-left: 3px solid var(–border2);
+padding: 9px 12px; background: #1a1a1a; border-radius: 3px;
+border: 1px solid #2a2a2a; border-left: 3px solid #333;
 }
 .batting-num {
 width: 28px; height: 28px; border-radius: 2px;
 display: flex; align-items: center; justify-content: center;
 font-weight: 700; font-size: 13px; flex-shrink: 0;
-background: var(–red-dim); color: var(–red); border: 1px solid var(–red-mid);
+background: #5a0910; color: #E81828; border: 1px solid #9e1019;
 font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 }
-.batting-name { flex: 1; font-size: 14px; font-weight: 700; color: var(–cream); font-family: ‘Helvetica Neue’, Arial, sans-serif; }
+.batting-name { flex: 1; font-size: 14px; font-weight: 700; color: #F5F0E8; font-family: ‘Helvetica Neue’, Arial, sans-serif; }
 .batting-arrows { display: flex; flex-direction: column; gap: 2px; }
 .arrow-btn {
-background: #111; border: 1px solid var(–border2); border-radius: 2px;
-color: var(–text3); cursor: pointer; font-size: 10px; padding: 3px 7px; line-height: 1;
+background: #111; border: 1px solid #333; border-radius: 2px;
+color: #555; cursor: pointer; font-size: 10px; padding: 3px 7px; line-height: 1;
 }
-.arrow-btn:active { background: var(–bg2); color: var(–cream); }
+.arrow-btn:active { background: #1a1a1a; color: #F5F0E8; }
 .batting-select {
-flex: 1; background: #111; border: 1px solid var(–border2); color: var(–text2);
+flex: 1; background: #111; border: 1px solid #333; color: #b8b0a0;
 border-radius: 3px; padding: 6px 8px;
 font-family: ‘Helvetica Neue’, Arial, sans-serif; font-size: 13px; cursor: pointer;
 }
 .batting-committed-badge {
 display: inline-block; padding: 3px 10px; border-radius: 2px;
-background: var(–navy-dim); border: 1px solid var(–navy);
+background: #001540; border: 1px solid #002D72;
 color: #6b9fff; font-size: 10px; font-weight: 700; letter-spacing: 2px;
 font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 }
@@ -276,34 +276,34 @@ position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000;
 display: flex; align-items: center; justify-content: center; padding: 24px;
 }
 .modal-box {
-background: var(–bg2); border: 1px solid var(–border2);
-border-top: 3px solid var(–red);
+background: #1a1a1a; border: 1px solid #333;
+border-top: 3px solid #E81828;
 border-radius: 4px; padding: 24px; max-width: 340px; width: 100%;
 box-shadow: 0 20px 60px rgba(0,0,0,0.8);
 }
 .modal-title {
-font-size: 15px; font-weight: 700; color: var(–cream); letter-spacing: 2px;
+font-size: 15px; font-weight: 700; color: #F5F0E8; letter-spacing: 2px;
 margin-bottom: 10px; font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 }
-.modal-msg { font-size: 13px; color: var(–text2); line-height: 1.6; margin-bottom: 20px; }
+.modal-msg { font-size: 13px; color: #b8b0a0; line-height: 1.6; margin-bottom: 20px; }
 .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
 
 /* TOAST */
 .toast {
 position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-background: var(–red); color: var(–cream); padding: 10px 24px;
+background: #E81828; color: #F5F0E8; padding: 10px 24px;
 border-radius: 3px; font-weight: 700; font-size: 12px; letter-spacing: 2px;
 opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999;
 white-space: nowrap; font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 box-shadow: 0 4px 20px rgba(232,24,40,0.4);
 }
 .toast.show { opacity: 1; }
-.empty { color: var(–text3); text-align: center; padding: 40px; font-size: 14px; line-height: 1.8; }
+.empty { color: #555; text-align: center; padding: 40px; font-size: 14px; line-height: 1.8; }
 
 /* STITCHING DIVIDER */
 .stitch {
 border: none; margin: 16px 0;
-border-top: 2px dashed var(–border2); opacity: 0.5;
+border-top: 2px dashed #333; opacity: 0.5;
 }
 
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -629,7 +629,7 @@ function renderLineupTab() {
     html+=`<div style="color:#E81828;text-align:center;padding:16px;font-size:13px;letter-spacing:1px">ALL PLAYERS ASSIGNED ✓</div>`;
   } else {
     unassigned.forEach(p=>{
-      html+=`<div class="bench-item"><span>${p}</span><span style="color:var(--text3);font-size:11px">${totalInnings(p)} inn.</span></div>`;
+      html+=`<div class="bench-item"><span>${p}</span><span style="color:#555;font-size:11px">${totalInnings(p)} inn.</span></div>`;
     });
   }
 
@@ -642,7 +642,7 @@ function renderLineupTab() {
   </div>
   ${state.players.map(p=>`
     <div class="roster-item">
-      <span style="color:var(--text2)">${p}</span>
+      <span style="color:#b8b0a0">${p}</span>
       <button class="rm-btn" onclick="removePlayer('${p}')">×</button>
     </div>`).join("")}
   </div></div>`;
@@ -659,7 +659,7 @@ function renderBattingTab() {
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
     <div>
       <div class="label" style="margin:0;border:none">Batting Order — Game ${state.game}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:4px;letter-spacing:1px">
+      <div style="font-size:11px;color:#555;margin-top:4px;letter-spacing:1px">
         ${committed?"Order locked for this game.":"Arrange order then commit. Rotates each new game."}
       </div>
     </div>
@@ -700,12 +700,12 @@ function renderBattingTab() {
     const nextOrder=[state.battingOrder[state.battingOrder.length-1],...state.battingOrder.slice(0,-1)];
     html+=`
     <hr class="stitch">
-    <div class="label">Next Game Order <span style="color:var(--text3);font-size:9px;letter-spacing:1px">(preview)</span></div>
+    <div class="label">Next Game Order <span style="color:#555;font-size:9px;letter-spacing:1px">(preview)</span></div>
     <div style="display:flex;flex-wrap:wrap;gap:5px">
       ${nextOrder.map((p,i)=>`
-        <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--bg2);border-radius:2px;border:1px solid var(--border);font-size:12px">
-          <span style="color:var(--red);font-weight:700;min-width:16px;font-family:'Oswald',Arial,sans-serif">${i+1}</span>
-          <span style="color:var(--text3)">${p}</span>
+        <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:#1a1a1a;border-radius:2px;border:1px solid #2a2a2a;font-size:12px">
+          <span style="color:#E81828;font-weight:700;min-width:16px;font-family:'Oswald',Arial,sans-serif">${i+1}</span>
+          <span style="color:#555">${p}</span>
         </div>`).join("")}
     </div>`;
   }
@@ -773,8 +773,8 @@ function renderStatsTab() {
     <thead><tr>
       <th class="player-col">Player</th>
       ${POSITIONS.map(p=>`<th>${p}</th>`).join("")}
-      <th style="color:var(--muted)">Bench</th>
-      <th style="color:var(--red)">Total</th>
+      <th style="color:#666">Bench</th>
+      <th style="color:#E81828">Total</th>
     </tr></thead>
     <tbody>
     ${state.players.map(player=>{
@@ -784,15 +784,15 @@ function renderStatsTab() {
         ${POSITIONS.map(pos=>{
           const count=allCounts[player]?.[pos]||0;
           const pref=state.prefs[player]?.[pos]||"neutral";
-          if(!count) return `<td><span style="color:var(--border2)">—</span></td>`;
+          if(!count) return `<td><span style="color:#333">—</span></td>`;
           const bg=pref==="preferred"?"#5a0910":pref==="avoid"?"#222":"#001540";
           const c=pref==="preferred"?"#E81828":pref==="avoid"?"#666":"#6b9fff";
           return `<td><span class="stat-badge" style="background:${bg};color:${c}">${count}</span></td>`;
         }).join("")}
-        <td style="text-align:center"><span style="color:var(--text3);font-size:12px">${allCounts[player]?.bench||0}</span></td>
+        <td style="text-align:center"><span style="color:#555;font-size:12px">${allCounts[player]?.bench||0}</span></td>
         <td style="text-align:center">
           <div class="progress-bar"><div class="progress-fill" style="width:${(total/maxInn)*100}%"></div></div>
-          <span style="color:var(--red);font-weight:700;margin-left:6px;font-family:'Oswald',Arial,sans-serif">${total}</span>
+          <span style="color:#E81828;font-weight:700;margin-left:6px;font-family:'Oswald',Arial,sans-serif">${total}</span>
         </td>
       </tr>`;
     }).join("")}
@@ -823,17 +823,17 @@ function renderHistoryTab() {
           ${POSITIONS.map(pos=>{
             const player=lineup[pos];
             const pref=player?(state.prefs[player]?.[pos]||"neutral"):"neutral";
-            const c=pref==="preferred"?"#E81828":pref==="avoid"?"#555":"var(--text3)";
+            const c=pref==="preferred"?"#E81828":pref==="avoid"?"#555":"#555";
             return `<div class="pos-chip" style="border-color:${c}50">
-              <span style="color:var(--cream2);font-weight:700;margin-right:5px;font-family:'Oswald',Arial,sans-serif">${pos}</span>
+              <span style="color:#EDE8DE;font-weight:700;margin-right:5px;font-family:'Oswald',Arial,sans-serif">${pos}</span>
               <span style="color:${c}">${player||"—"}</span>
             </div>`;
           }).join("")}
           </div>
           ${bench&&bench.length?`
-          <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border2)">
-            <span style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-right:10px;font-family:'Oswald',Arial,sans-serif">BENCH</span>
-            ${bench.map(p=>`<span style="display:inline-block;margin:3px 4px 3px 0;padding:4px 9px;border-radius:2px;background:#111;border:1px solid var(--border);font-size:11px;color:var(--text3)">${p}</span>`).join("")}
+          <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #333">
+            <span style="font-size:10px;color:#666;letter-spacing:2px;margin-right:10px;font-family:'Oswald',Arial,sans-serif">BENCH</span>
+            ${bench.map(p=>`<span style="display:inline-block;margin:3px 4px 3px 0;padding:4px 9px;border-radius:2px;background:#111;border:1px solid #2a2a2a;font-size:11px;color:#555">${p}</span>`).join("")}
           </div>`:""}
         </div>`;
       });
