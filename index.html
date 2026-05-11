@@ -5,7 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Phillies Lineup Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --red: #E81828;
@@ -28,14 +27,15 @@
     --gold: #C5A028;
     --gold-dim: #3a2d0a;
   }
-  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Roboto+Condensed:wght@400;700&display=swap');
 
 - { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+html { background: #0d0d0d; }
+
 body {
-background: var(–bg);
-color: var(–text);
-font-family: ‘Roboto Condensed’, ‘Arial Narrow’, Arial, sans-serif;
+background: #0d0d0d;
+color: #F5F0E8;
+font-family: ‘Helvetica Neue’, Arial, sans-serif;
 min-height: 100vh;
 }
 
@@ -61,7 +61,7 @@ font-size: 22px; flex-shrink: 0;
 box-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 .header-title {
-font-family: ‘Oswald’, ‘Arial Narrow’, Arial, sans-serif;
+font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif; font-stretch: condensed; font-weight: 700;
 font-size: 20px; font-weight: 700; letter-spacing: 2px;
 color: var(–cream); text-transform: uppercase; line-height: 1.1;
 text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
@@ -79,7 +79,7 @@ display: flex; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch;
 .tab-btn {
 padding: 10px 14px; border: none; border-bottom: 3px solid transparent;
 background: transparent; color: rgba(245,240,232,0.5);
-font-family: ‘Oswald’, Arial, sans-serif;
+font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 font-weight: 600; font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
 cursor: pointer; white-space: nowrap; transition: color 0.15s;
 }
@@ -92,7 +92,7 @@ color: var(–cream); border-bottom-color: var(–red);
 /* BUTTONS */
 .btn {
 padding: 9px 16px; border-radius: 3px;
-font-family: ‘Oswald’, Arial, sans-serif;
+font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 font-weight: 600; font-size: 12px; letter-spacing: 2px;
 cursor: pointer; border: 2px solid; text-transform: uppercase;
 transition: opacity 0.15s;
@@ -106,7 +106,7 @@ transition: opacity 0.15s;
 
 /* SECTION LABEL */
 .label {
-font-family: ‘Oswald’, Arial, sans-serif;
+font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 font-size: 11px; color: var(–muted); letter-spacing: 3px;
 margin-bottom: 10px; text-transform: uppercase;
 border-bottom: 1px solid var(–border); padding-bottom: 6px;
@@ -125,7 +125,7 @@ flex-wrap: wrap; gap: 10px;
 box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 8px rgba(0,0,0,0.4);
 }
 .game-num {
-font-family: ‘Oswald’, Arial, sans-serif;
+font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 font-size: 16px; font-weight: 700; color: var(–cream); letter-spacing: 3px;
 }
 .game-meta { font-size: 11px; color: var(–text2); letter-spacing: 1px; margin-top: 2px; }
@@ -136,9 +136,9 @@ font-size: 16px; font-weight: 700; color: var(–cream); letter-spacing: 3px;
 background: #111; border: 1px solid var(–border2); border-radius: 4px;
 padding: 8px 16px; display: flex; align-items: baseline; gap: 8px;
 }
-.inning-label { font-size: 10px; color: var(–muted); letter-spacing: 3px; font-family: ‘Oswald’, Arial, sans-serif; }
+.inning-label { font-size: 10px; color: var(–muted); letter-spacing: 3px; font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif; }
 .inning-val {
-font-family: ‘Oswald’, Arial, sans-serif;
+font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 font-size: 32px; font-weight: 700; color: var(–red); line-height: 1;
 }
 .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -154,13 +154,13 @@ transition: border-left-color 0.15s;
 .pos-tag {
 width: 36px; text-align: center; font-weight: 700; font-size: 13px;
 color: var(–cream2); letter-spacing: 1px; flex-shrink: 0;
-font-family: ‘Oswald’, Arial, sans-serif;
+font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 }
 .pos-name { font-size: 10px; color: var(–text3); flex: 1; letter-spacing: 1px; }
 .pos-select {
 background: #111; border: 1px solid var(–border2); color: var(–text2);
 border-radius: 3px; padding: 6px 8px;
-font-family: ‘Roboto Condensed’, Arial, sans-serif; font-size: 13px;
+font-family: ‘Helvetica Neue’, Arial, sans-serif; font-size: 13px;
 cursor: pointer; max-width: 150px; width: 100%;
 }
 
@@ -187,7 +187,7 @@ border: 1px solid var(–border);
 .text-input {
 flex: 1; padding: 9px 12px; background: #111;
 border: 1px solid var(–border2); border-radius: 3px;
-color: var(–text); font-family: ‘Roboto Condensed’, Arial, sans-serif; font-size: 13px;
+color: var(–text); font-family: ‘Helvetica Neue’, Arial, sans-serif; font-size: 13px;
 }
 .text-input::placeholder { color: var(–text3); }
 .text-input:focus { outline: none; border-color: var(–red); }
@@ -198,7 +198,7 @@ table { width: 100%; border-collapse: collapse; font-size: 12px; }
 th {
 padding: 8px 6px; color: var(–muted); font-weight: 700; letter-spacing: 2px;
 font-size: 10px; border-bottom: 2px solid var(–red); text-align: center;
-font-family: ‘Oswald’, Arial, sans-serif;
+font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 }
 th.player-col { text-align: left; padding-left: 12px; }
 td { padding: 8px 4px; text-align: center; border-bottom: 1px solid var(–border); }
@@ -210,7 +210,7 @@ tr:nth-child(odd) td  { background: var(–bg3); }
 width: 30px; height: 30px; border-radius: 3px; border: 2px solid; cursor: pointer; font-size: 14px;
 display: inline-flex; align-items: center; justify-content: center; margin: auto;
 }
-.stat-badge { display: inline-block; width: 26px; height: 26px; line-height: 26px; border-radius: 2px; font-size: 12px; font-weight: 700; text-align: center; font-family: ‘Oswald’, Arial, sans-serif; }
+.stat-badge { display: inline-block; width: 26px; height: 26px; line-height: 26px; border-radius: 2px; font-size: 12px; font-weight: 700; text-align: center; font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif; }
 .progress-bar { height: 5px; background: var(–border); border-radius: 2px; width: 50px; overflow: hidden; display: inline-block; vertical-align: middle; }
 .progress-fill { height: 100%; background: var(–red); border-radius: 2px; }
 
@@ -221,7 +221,7 @@ border: 1px solid var(–border); border-top: 2px solid var(–red);
 }
 .inning-title {
 color: var(–cream); font-weight: 700; font-size: 12px; margin-bottom: 10px;
-letter-spacing: 3px; font-family: ‘Oswald’, Arial, sans-serif;
+letter-spacing: 3px; font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 }
 .pos-chips { display: flex; flex-wrap: wrap; gap: 5px; }
 .pos-chip {
@@ -234,7 +234,7 @@ border: 1px solid var(–border);
 .game-divider-line { flex: 1; height: 1px; background: var(–red); opacity: 0.3; }
 .game-divider-label {
 font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(–red);
-white-space: nowrap; font-family: ‘Oswald’, Arial, sans-serif;
+white-space: nowrap; font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 }
 
 /* BATTING */
@@ -248,9 +248,9 @@ width: 28px; height: 28px; border-radius: 2px;
 display: flex; align-items: center; justify-content: center;
 font-weight: 700; font-size: 13px; flex-shrink: 0;
 background: var(–red-dim); color: var(–red); border: 1px solid var(–red-mid);
-font-family: ‘Oswald’, Arial, sans-serif;
+font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 }
-.batting-name { flex: 1; font-size: 14px; font-weight: 700; color: var(–cream); font-family: ‘Roboto Condensed’, Arial, sans-serif; }
+.batting-name { flex: 1; font-size: 14px; font-weight: 700; color: var(–cream); font-family: ‘Helvetica Neue’, Arial, sans-serif; }
 .batting-arrows { display: flex; flex-direction: column; gap: 2px; }
 .arrow-btn {
 background: #111; border: 1px solid var(–border2); border-radius: 2px;
@@ -260,13 +260,13 @@ color: var(–text3); cursor: pointer; font-size: 10px; padding: 3px 7px; line-h
 .batting-select {
 flex: 1; background: #111; border: 1px solid var(–border2); color: var(–text2);
 border-radius: 3px; padding: 6px 8px;
-font-family: ‘Roboto Condensed’, Arial, sans-serif; font-size: 13px; cursor: pointer;
+font-family: ‘Helvetica Neue’, Arial, sans-serif; font-size: 13px; cursor: pointer;
 }
 .batting-committed-badge {
 display: inline-block; padding: 3px 10px; border-radius: 2px;
 background: var(–navy-dim); border: 1px solid var(–navy);
 color: #6b9fff; font-size: 10px; font-weight: 700; letter-spacing: 2px;
-font-family: ‘Oswald’, Arial, sans-serif;
+font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 }
 .batting-order-list { max-width: 420px; }
 
@@ -283,7 +283,7 @@ box-shadow: 0 20px 60px rgba(0,0,0,0.8);
 }
 .modal-title {
 font-size: 15px; font-weight: 700; color: var(–cream); letter-spacing: 2px;
-margin-bottom: 10px; font-family: ‘Oswald’, Arial, sans-serif;
+margin-bottom: 10px; font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 }
 .modal-msg { font-size: 13px; color: var(–text2); line-height: 1.6; margin-bottom: 20px; }
 .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
@@ -294,7 +294,7 @@ position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
 background: var(–red); color: var(–cream); padding: 10px 24px;
 border-radius: 3px; font-weight: 700; font-size: 12px; letter-spacing: 2px;
 opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999;
-white-space: nowrap; font-family: ‘Oswald’, Arial, sans-serif;
+white-space: nowrap; font-family: ‘Arial Narrow’, ‘Helvetica Neue’, Arial, sans-serif;
 box-shadow: 0 4px 20px rgba(232,24,40,0.4);
 }
 .toast.show { opacity: 1; }
