@@ -355,6 +355,46 @@ font-size: 13px;
 .bat-name { color: #F5F0E8; flex: 1; }
 .bat-pos { color: #666; font-size: 11px; font-family: ‘Arial Narrow’,‘Helvetica Neue’,Arial,sans-serif; }
 
+/* QUICK VIEW */
+.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.quick-pos-card {
+background: #1c1c1e; border-radius: 4px; padding: 10px 12px;
+border-left: 3px solid #E81828; border-top: 1px solid #2a2a2e;
+border-right: 1px solid #2a2a2e; border-bottom: 1px solid #2a2a2e;
+}
+.quick-pos { font-size: 10px; font-weight: 700; color: #E81828; letter-spacing: 2px; margin-bottom: 2px; font-family: ‘Arial Narrow’,‘Helvetica Neue’,Arial,sans-serif; }
+.quick-name { font-size: 16px; font-weight: 700; color: #F5F0E8; }
+.quick-bat { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+.quick-bat-item { display: flex; align-items: center; gap: 6px; padding: 5px 10px; background: #1c1c1e; border-radius: 3px; border: 1px solid #2a2a2e; font-size: 13px; min-width: 140px; }
+.quick-bat-num { color: #E81828; font-weight: 700; width: 18px; font-family: ‘Arial Narrow’,‘Helvetica Neue’,Arial,sans-serif; }
+.quick-bat-name { color: #F5F0E8; flex: 1; }
+.quick-bat-pos { color: #555; font-size: 11px; }
+.quick-inning-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: #1c1c1e; border: 1px solid #333; border-radius: 4px; margin-bottom: 14px; }
+
+/* PITCH COUNT */
+.pitch-player-card {
+background: #1c1c1e; border-radius: 4px; padding: 12px 14px;
+border: 1px solid #2a2a2e; margin-bottom: 8px;
+display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.pitch-name { font-size: 14px; font-weight: 700; color: #F5F0E8; flex: 1; min-width: 80px; }
+.pitch-count-display {
+font-size: 28px; font-weight: 900; font-family: ‘Arial Narrow’,‘Helvetica Neue’,Arial,sans-serif;
+min-width: 48px; text-align: center;
+}
+.pitch-controls { display: flex; gap: 6px; align-items: center; }
+.pitch-btn {
+width: 36px; height: 36px; border-radius: 50%; border: 2px solid;
+font-size: 18px; font-weight: 700; cursor: pointer;
+display: flex; align-items: center; justify-content: center; line-height: 1;
+font-family: ‘Arial Narrow’,‘Helvetica Neue’,Arial,sans-serif;
+}
+.pitch-btn-minus { border-color: #444; background: #222; color: #888; }
+.pitch-btn-plus  { border-color: #E81828; background: #5a0910; color: #E81828; }
+.pitch-bar-wrap { width: 100%; height: 6px; background: #2a2a2e; border-radius: 3px; margin-top: 6px; overflow: hidden; }
+.pitch-bar { height: 100%; border-radius: 3px; transition: width 0.2s; }
+.pitch-warning { font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 2px 8px; border-radius: 2px; }
+
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 @media(max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
 </style>
@@ -376,16 +416,20 @@ font-size: 13px;
   </div>
   <div class="tabs">
     <button class="tab-btn active" onclick="showTab('lineup')">⚾ Lineup</button>
-    <button class="tab-btn" onclick="showTab('batting')">🏏 Batting</button>
-    <button class="tab-btn" onclick="showTab('prefs')">★ Prefs</button>
-    <button class="tab-btn" onclick="showTab('stats')">📊 Stats</button>
-    <button class="tab-btn" onclick="showTab('history')">📋 History</button>
-    <button class="tab-btn" onclick="showTab('diamond')">💎 Diamond</button>
+    <button class="tab-btn" onclick="showTab('quick')">Quick</button>
+    <button class="tab-btn" onclick="showTab('pitches')">Pitches</button>
+    <button class="tab-btn" onclick="showTab('batting')">Batting</button>
+    <button class="tab-btn" onclick="showTab('prefs')">Prefs</button>
+    <button class="tab-btn" onclick="showTab('stats')">Stats</button>
+    <button class="tab-btn" onclick="showTab('history')">History</button>
+    <button class="tab-btn" onclick="showTab('diamond')">Diamond</button>
   </div>
 </div>
 
 <div class="content">
   <div id="tab-lineup"></div>
+  <div id="tab-quick" style="display:none"></div>
+  <div id="tab-pitches" style="display:none"></div>
   <div id="tab-batting" style="display:none"></div>
   <div id="tab-prefs" style="display:none"></div>
   <div id="tab-stats" style="display:none"></div>
@@ -487,7 +531,7 @@ function freshPrefs(players) {
 
 function defaultState() {
   const players = [...DEFAULT_PLAYERS];
-  return { players, prefs: freshPrefs(players), counts: freshCounts(players), history: [], inning: 1, lineup: {}, game: 1, games: [], battingOrder: [...players], battingCommitted: false, pendingBatting: [...players], absent: [], gameInfo: {} };
+  return { players, prefs: freshPrefs(players), counts: freshCounts(players), history: [], inning: 1, lineup: {}, game: 1, games: [], battingOrder: [...players], battingCommitted: false, pendingBatting: [...players], absent: [], gameInfo: {}, pitchCounts: {}, pitchLimit: 50 };
 }
 
 function ensureFields(s) {
@@ -498,6 +542,8 @@ function ensureFields(s) {
   if (!s.pendingBatting) s.pendingBatting = [...s.players];
   if (!s.absent) s.absent = [];
   if (!s.gameInfo) s.gameInfo = {};
+  if (!s.pitchCounts) s.pitchCounts = {};
+  if (!s.pitchLimit) s.pitchLimit = 50;
   return s;
 }
 
@@ -566,7 +612,7 @@ function showToast(msg, color) {
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
-const TAB_NAMES = ["lineup","batting","prefs","stats","history","diamond"];
+const TAB_NAMES = ["lineup","quick","pitches","batting","prefs","stats","history","diamond"];
 let activeTab = "lineup";
 function showTab(tab) {
   activeTab = tab;
@@ -710,8 +756,7 @@ function confirmGameDetails() {
     state.game++; state.inning=1; state.lineup={};
     state.counts=freshCounts(state.players);
     rotateBattingOrder();
-    state.gameInfo[state.game] = { date, opponent };
-    saveState(); showToast(`Game ${state.game} — Play ball! ⚾`, "#002D72"); render();
+    state.gameInfo[state.game] = { date, opponent };    saveState(); showToast(`Game ${state.game} — Play ball! ⚾`, "#002D72"); render();
   } else {
     state.gameInfo[state.game] = { date, opponent };
     saveState(); showToast("Game details saved ✓"); render();
@@ -1489,8 +1534,160 @@ async function exportGamePDF(gameNum) {
   showToast("PDF ready ✓");
 }
 
+// ── PITCH COUNTS ──────────────────────────────────────────────────────────────
+function getPitches(player) {
+  const key = state.game + '_' + player;
+  return (state.pitchCounts[key] || 0);
+}
+function addPitch(player, delta) {
+  const key = state.game + '_' + player;
+  const current = state.pitchCounts[key] || 0;
+  state.pitchCounts[key] = Math.max(0, current + delta);
+  saveState(); renderPitchesTab();
+}
+function setPitchLimit(val) {
+  const n = parseInt(val);
+  if (!isNaN(n) && n > 0) { state.pitchLimit = n; saveState(); renderPitchesTab(); }
+}
+function resetPitchCounts() {
+  showModal("Reset Pitch Counts", "Reset all pitch counts for this game?", "Reset", () => {
+    state.players.forEach(p => { delete state.pitchCounts[state.game + '_' + p]; });
+    saveState(); showToast("Pitch counts reset"); renderPitchesTab();
+  }, "btn-red");
+}
+
+// ── RENDER QUICK VIEW ─────────────────────────────────────────────────────────
+function renderQuickTab() {
+  const assigned = state.lineup;
+  const hasLineup = Object.keys(assigned).length > 0;
+  const positionOf = {};
+  Object.entries(assigned).forEach(([pos, player]) => { positionOf[player] = pos; });
+
+  let html = '<div class="quick-inning-badge">'
+    +'<span style="font-size:10px;color:#666;letter-spacing:2px;font-family:\'Arial Narrow\',Arial,sans-serif">GAME</span>'
+    +'<span style="font-size:18px;font-weight:900;color:#E81828;font-family:\'Arial Narrow\',Arial,sans-serif">'+state.game+'</span>'
+    +'<span style="color:#333">|</span>'
+    +'<span style="font-size:10px;color:#666;letter-spacing:2px;font-family:\'Arial Narrow\',Arial,sans-serif">INNING</span>'
+    +'<span style="font-size:18px;font-weight:900;color:#F5F0E8;font-family:\'Arial Narrow\',Arial,sans-serif">'+state.inning+'</span>'
+    +'</div>';
+
+  // Pitcher pitch count highlight
+  const pitcher = assigned['P'];
+  if (pitcher) {
+    const pitches = getPitches(pitcher);
+    const limit = state.pitchLimit;
+    const pct = Math.min(pitches / limit, 1);
+    const barColor = pct >= 1 ? '#E81828' : pct >= 0.8 ? '#f59e0b' : '#22c55e';
+    html += '<div style="background:#1c1c1e;border:1px solid #333;border-left:3px solid '+barColor+';border-radius:4px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px">'
+      +'<div><div style="font-size:10px;color:#666;letter-spacing:2px">PITCHER</div>'
+      +'<div style="font-size:16px;font-weight:700;color:#F5F0E8">'+pitcher+'</div></div>'
+      +'<div style="flex:1">'
+      +'<div style="display:flex;justify-content:space-between;margin-bottom:4px">'
+      +'<span style="font-size:11px;color:#888">Pitches</span>'
+      +'<span style="font-size:13px;font-weight:900;color:'+barColor+'">'+pitches+' / '+limit+'</span></div>'
+      +'<div class="pitch-bar-wrap"><div class="pitch-bar" style="width:'+Math.round(pct*100)+'%;background:'+barColor+'"></div></div>'
+      +'</div>'
+      +'<div style="display:flex;gap:6px">'
+      +'<button class="pitch-btn pitch-btn-minus" onclick="addPitch(\''+pitcher+'\',-1)">−</button>'
+      +'<button class="pitch-btn pitch-btn-plus" onclick="addPitch(\''+pitcher+'\',1)">+</button>'
+      +'</div></div>';
+  }
+
+  if (!hasLineup) {
+    html += '<div class="empty">No lineup set for this inning.<br>Go to Lineup tab to assign positions.</div>';
+  } else {
+    html += '<div class="label">Current Field</div><div class="quick-grid">';
+    POSITIONS.forEach(pos => {
+      const player = assigned[pos] || '';
+      html += '<div class="quick-pos-card">'
+        +'<div class="quick-pos">'+pos+' · '+POS_NAMES[pos]+'</div>'
+        +'<div class="quick-name">'+(player || '—')+'</div>'
+        +'</div>';
+    });
+    html += '</div>';
+  }
+
+  // Bench
+  const bench = state.players.filter(p => !Object.values(assigned).includes(p) && !state.absent.includes(p));
+  if (bench.length) {
+    html += '<div class="label">Bench</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">';
+    bench.forEach(p => { html += '<span style="padding:5px 12px;background:#1c1c1e;border:1px solid #2a2a2e;border-radius:3px;font-size:13px;color:#888">'+p+'</span>'; });
+    html += '</div>';
+  }
+
+  // Batting order
+  html += '<div class="label">Batting Order</div><div class="quick-bat">';
+  state.battingOrder.forEach((player, idx) => {
+    const pos = positionOf[player] || (state.absent.includes(player) ? 'ABS' : 'BENCH');
+    const isAbs = state.absent.includes(player);
+    html += '<div class="quick-bat-item" style="opacity:'+(isAbs?'0.4':'1')+'">'
+      +'<span class="quick-bat-num">'+(idx+1)+'</span>'
+      +'<span class="quick-bat-name">'+player+'</span>'
+      +'<span class="quick-bat-pos">'+pos+'</span>'
+      +'</div>';
+  });
+  html += '</div>';
+
+  document.getElementById("tab-quick").innerHTML = html;
+}
+
+// ── RENDER PITCH COUNT ────────────────────────────────────────────────────────
+function renderPitchesTab() {
+  const limit = state.pitchLimit;
+  // Only show players who have pitched this game or are currently pitching
+  const currentPitcher = state.lineup['P'] || '';
+  const pitchedThisGame = state.players.filter(p => getPitches(p) > 0 || p === currentPitcher);
+
+  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">'
+    +'<div class="label" style="margin:0;border:none">Pitch Counts — Game '+state.game+'</div>'
+    +'<div style="display:flex;gap:8px;align-items:center">'
+    +'<span style="font-size:11px;color:#888">Limit:</span>'
+    +'<input type="number" value="'+limit+'" min="1" max="150" onchange="setPitchLimit(this.value)" style="width:54px;background:#1c1c1e;border:1px solid #444;border-radius:3px;color:#F5F0E8;font-size:13px;padding:4px 6px;font-family:\'Helvetica Neue\',Arial,sans-serif">'
+    +'<button class="btn btn-red" style="padding:6px 10px;font-size:10px" onclick="resetPitchCounts()">↺ Reset</button>'
+    +'</div></div>';
+
+  if (pitchedThisGame.length === 0) {
+    html += '<div class="empty">No pitchers tracked yet.<br>Assign a pitcher in the Lineup tab, then add pitches here or in Quick View.</div>';
+  } else {
+    pitchedThisGame.forEach(player => {
+      const count = getPitches(player);
+      const pct = Math.min(count / limit, 1);
+      const barColor = pct >= 1 ? '#E81828' : pct >= 0.8 ? '#f59e0b' : '#22c55e';
+      const isCurrent = player === currentPitcher;
+      html += '<div class="pitch-player-card" style="border-color:'+(isCurrent?'#E81828':'#2a2a2e')+'">'
+        +'<div style="flex:1">'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
+        +'<span class="pitch-name">'+player+'</span>'
+        +(isCurrent?'<span style="font-size:9px;background:#5a0910;color:#E81828;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px">PITCHING</span>':'')
+        +(count >= limit?'<span style="font-size:9px;background:#5a0910;color:#E81828;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px">LIMIT</span>':'')
+        +(count >= limit*0.8 && count < limit?'<span style="font-size:9px;background:#3a2d0a;color:#f59e0b;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:1px">NEAR LIMIT</span>':'')
+        +'</div>'
+        +'<div class="pitch-bar-wrap"><div class="pitch-bar" style="width:'+Math.round(pct*100)+'%;background:'+barColor+'"></div></div>'
+        +'</div>'
+        +'<div class="pitch-controls">'
+        +'<button class="pitch-btn pitch-btn-minus" onclick="addPitch(\''+player+'\',-1)">−</button>'
+        +'<span class="pitch-count-display" style="color:'+barColor+'">'+count+'</span>'
+        +'<button class="pitch-btn pitch-btn-plus" onclick="addPitch(\''+player+'\',1)">+</button>'
+        +'</div></div>';
+    });
+  }
+
+  // All other players — quick add section
+  const notTracked = state.players.filter(p => !pitchedThisGame.includes(p) && !state.absent.includes(p));
+  if (notTracked.length) {
+    html += '<div class="label" style="margin-top:16px">Add Pitcher</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:6px">';
+    notTracked.forEach(p => {
+      html += '<button onclick="addPitch(\''+p+'\',0)" style="padding:6px 12px;background:#1c1c1e;border:1px solid #333;border-radius:3px;color:#888;font-size:12px;cursor:pointer">'+p+'</button>';
+    });
+    html += '</div>';
+  }
+
+  document.getElementById("tab-pitches").innerHTML = html;
+}
+
 function render() {
-  renderLineupTab(); renderBattingTab(); renderPrefsTab(); renderStatsTab(); renderHistoryTab(); renderDiamondTab(); updateHeaderSub();
+  renderLineupTab(); renderQuickTab(); renderPitchesTab(); renderBattingTab(); renderPrefsTab(); renderStatsTab(); renderHistoryTab(); renderDiamondTab(); updateHeaderSub();
 }
 
 Object.assign(window, {
@@ -1498,7 +1695,8 @@ Object.assign(window, {
   setPos, cyclePref, addPlayer, removePlayer, resetAll, toggleAbsent,
   moveBatter, setBatterAtSlot, commitBattingOrder, editBattingOrder,
   openEditInning, closeEditModal, saveEditedInning, closeModal,
-  setDiamondGame, setDiamondInning, exportGamePDF
+  setDiamondGame, setDiamondInning, exportGamePDF,
+  addPitch, setPitchLimit, resetPitchCounts
 });
 
 </script>
