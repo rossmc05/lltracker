@@ -409,9 +409,33 @@ border-top: 2px dashed #444; opacity: 0.5;
   </div>
 </div>
 
+<div id="loading-overlay" style="display:none;position:fixed;inset:0;background:#0d0d0d;z-index:2000;align-items:center;justify-content:center;flex-direction:column;gap:16px">
+  <div style="font-size:40px">⚾</div>
+  <div style="color:#E81828;font-size:13px;letter-spacing:3px;font-family:'Arial Narrow','Helvetica Neue',Arial,sans-serif">LOADING...</div>
+</div>
+
 <div class="toast" id="toast"></div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDhxIgUUF0OneOVlZL8yl3uqviGUAv-O4w",
+  authDomain: "lltracker-37f05.firebaseapp.com",
+  projectId: "lltracker-37f05",
+  storageBucket: "lltracker-37f05.firebasestorage.app",
+  messagingSenderId: "565280707160",
+  appId: "1:565280707160:web:9434aa117577ce09d5b02d"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+const STATE_DOC = doc(db, "tracker", "state");
+
+// Show loading overlay
+document.getElementById("loading-overlay").style.display = "flex";
+
 const POSITIONS = ["P","C","1B","2B","3B","SS","LF","CF","RF"];
 const POS_NAMES = {P:"Pitcher",C:"Catcher","1B":"1st Base","2B":"2nd Base","3B":"3rd Base",SS:"Shortstop",LF:"Left Field",CF:"Center Field",RF:"Right Field"};
 const PREF_CYCLE = ["neutral","preferred","avoid"];
@@ -431,39 +455,64 @@ function freshPrefs(players) {
   return p;
 }
 
-function loadState() {
-  try {
-    const old = localStorage.getItem("lltracker_v1");
-    if (old && !localStorage.getItem("lltracker_v2")) {
-      const s = JSON.parse(old); s.game = 1; s.games = [];
-      localStorage.setItem("lltracker_v2", JSON.stringify(s));
-    }
-  } catch(e) {}
-  try {
-    const s = localStorage.getItem("lltracker_v2");
-    if (s) {
-      const parsed = JSON.parse(s);
-      if (!parsed.game) parsed.game = 1;
-      if (!parsed.games) parsed.games = [];
-      if (!parsed.battingOrder) parsed.battingOrder = [...parsed.players];
-      if (parsed.battingCommitted === undefined) parsed.battingCommitted = false;
-      if (!parsed.pendingBatting) parsed.pendingBatting = [...parsed.players];
-      if (!parsed.absent) parsed.absent = [];
-      if (!parsed.gameInfo) parsed.gameInfo = {};
-      return parsed;
-    }
-  } catch(e) {}
+function defaultState() {
   const players = [...DEFAULT_PLAYERS];
   return { players, prefs: freshPrefs(players), counts: freshCounts(players), history: [], inning: 1, lineup: {}, game: 1, games: [], battingOrder: [...players], battingCommitted: false, pendingBatting: [...players], absent: [], gameInfo: {} };
 }
-function saveState() { localStorage.setItem("lltracker_v2", JSON.stringify(state)); }
 
-let state = loadState();
-if (!state.battingOrder) state.battingOrder = [...state.players];
-if (state.battingCommitted === undefined) state.battingCommitted = false;
-if (!state.pendingBatting) state.pendingBatting = [...state.players];
-if (!state.absent) state.absent = [];
-if (!state.gameInfo) state.gameInfo = {};
+function ensureFields(s) {
+  if (!s.game) s.game = 1;
+  if (!s.games) s.games = [];
+  if (!s.battingOrder) s.battingOrder = [...s.players];
+  if (s.battingCommitted === undefined) s.battingCommitted = false;
+  if (!s.pendingBatting) s.pendingBatting = [...s.players];
+  if (!s.absent) s.absent = [];
+  if (!s.gameInfo) s.gameInfo = {};
+  return s;
+}
+
+async function saveState() {
+  try {
+    await setDoc(STATE_DOC, state);
+  } catch(e) {
+    console.error("Save failed:", e);
+    showToast("Save failed — check connection", "#c00");
+  }
+}
+
+let state = defaultState();
+let unsubscribe = null;
+
+// Load initial state then subscribe to live updates
+async function initApp() {
+  try {
+    const snap = await getDoc(STATE_DOC);
+    if (snap.exists()) {
+      state = ensureFields(snap.data());
+    } else {
+      // First time — write default state
+      await setDoc(STATE_DOC, state);
+    }
+  } catch(e) {
+    console.error("Load failed:", e);
+  }
+
+  document.getElementById("loading-overlay").style.display = "none";
+  render();
+  showTab("lineup");
+
+  // Live listener — updates UI when another device saves
+  unsubscribe = onSnapshot(STATE_DOC, (snap) => {
+    if (snap.exists()) {
+      const incoming = ensureFields(snap.data());
+      // Only update if different from what we just saved (avoid echo)
+      state = incoming;
+      render();
+    }
+  }, (err) => console.error("Listener error:", err));
+}
+
+initApp();
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
 function showModal(title, msg, confirmLabel, onConfirm, confirmClass) {
@@ -1065,7 +1114,15 @@ function renderHistoryTab() {
 function render() {
   renderLineupTab(); renderBattingTab(); renderPrefsTab(); renderStatsTab(); renderHistoryTab(); updateHeaderSub();
 }
-render(); showTab("lineup");
+
+// Expose functions to window for inline onclick handlers
+Object.assign(window, {
+  showTab, autoAssign, commitInning, newGame, editGameInfo, closeGameDetailsModal, confirmGameDetails,
+  setPos, cyclePref, addPlayer, removePlayer, resetAll, toggleAbsent,
+  moveBatter, setBatterAtSlot, commitBattingOrder, editBattingOrder,
+  openEditInning, closeEditModal, saveEditedInning, closeModal
+});
+
 </script>
 
 </body>
