@@ -1040,14 +1040,15 @@ function renderStatsTab() {
 function recalcStatsFromHistory() {
   // Reset current game counts
   state.counts = freshCounts(state.players);
-  // Reset archived game counts too - rebuild from history
-  state.games = state.games.map(g => ({ ...g, counts: freshCounts(state.players) }));
 
+  // Reset all archived game counts
+  state.games.forEach(g => { g.counts = freshCounts(state.players); });
+
+  // Replay entire history
   state.history.forEach(entry => {
     const { game, lineup, bench } = entry;
     const isCurrentGame = game === state.game;
-    const archivedGame = state.games.find(g => g.game === game);
-    const target = isCurrentGame ? state.counts : archivedGame?.counts;
+    const target = isCurrentGame ? state.counts : state.games.find(g => g.game === game)?.counts;
     if (!target) return;
 
     Object.entries(lineup).forEach(([pos, player]) => {
@@ -1069,11 +1070,12 @@ function openEditInning(historyIdx) {
   const entry = state.history[historyIdx];
   document.getElementById("edit-modal-title").textContent = "EDIT — GAME "+entry.game+" · INNING "+entry.inning;
 
-  let body = '<div class="label" style="margin-bottom:10px">Assign positions</div>';
-  const lineup = { ...entry.lineup };
+  const currentAbsent = entry.absent || [];
+
+  let body = '<div class="label" style="margin-bottom:10px">Field Positions</div>';
 
   POSITIONS.forEach(pos => {
-    const assigned = lineup[pos] || "";
+    const assigned = entry.lineup[pos] || "";
     let opts = '<option value="">— none —</option>';
     state.players.forEach(p => {
       opts += '<option value="'+p+'" '+(assigned===p?'selected':'')+'>'+p+'</option>';
@@ -1081,6 +1083,16 @@ function openEditInning(historyIdx) {
     body += '<div class="edit-pos-row">'
       +'<div class="edit-pos-tag">'+pos+'</div>'
       +'<select class="edit-select" id="edit-pos-'+pos+'">'+opts+'</select>'
+      +'</div>';
+  });
+
+  // Absent section
+  body += '<div class="label" style="margin-top:14px;margin-bottom:8px">Absent</div>';
+  state.players.forEach(p => {
+    const isAbsent = currentAbsent.includes(p);
+    body += '<div style="display:flex;align-items:center;gap:10px;padding:6px 10px;margin-bottom:4px;background:#1c1c1e;border-radius:3px;border:1px solid '+(isAbsent?'#E81828':'#2a2a2e')+'">'
+      +'<input type="checkbox" id="edit-absent-'+p+'" '+(isAbsent?'checked':'')+' style="accent-color:#E81828;width:16px;height:16px">'
+      +'<label for="edit-absent-'+p+'" style="color:'+(isAbsent?'#E81828':'#d0c8b8')+';font-size:13px;cursor:pointer">'+p+'</label>'
       +'</div>';
   });
 
@@ -1097,18 +1109,21 @@ function saveEditedInning() {
   if (editingInningIdx === null) return;
   const entry = state.history[editingInningIdx];
 
-  // Build new lineup from selects
+  // Build new lineup from position selects
   const newLineup = {};
   POSITIONS.forEach(pos => {
-    const val = document.getElementById(`edit-pos-${pos}`)?.value;
+    const val = document.getElementById('edit-pos-'+pos)?.value;
     if (val) newLineup[pos] = val;
   });
 
-  // Bench = all players not assigned
-  const assigned = Object.values(newLineup);
-  const newBench = state.players.filter(p => !assigned.includes(p));
+  // Build absent from checkboxes
+  const newAbsent = state.players.filter(p => document.getElementById('edit-absent-'+p)?.checked);
 
-  state.history[editingInningIdx] = { ...entry, lineup: newLineup, bench: newBench };
+  // Bench = players not assigned to a position and not absent
+  const assigned = Object.values(newLineup);
+  const newBench = state.players.filter(p => !assigned.includes(p) && !newAbsent.includes(p));
+
+  state.history[editingInningIdx] = { ...entry, lineup: newLineup, bench: newBench, absent: newAbsent };
 
   recalcStatsFromHistory();
   saveState();
