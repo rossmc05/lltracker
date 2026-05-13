@@ -681,14 +681,31 @@ function toggleAbsent(p) {
 // ── AUTO ASSIGN ───────────────────────────────────────────────────────────────
 function autoAssign() {
   const available = state.players.filter(p => !state.absent.includes(p));
+
+  // Build all-time counts across every game
+  const allCounts = {};
+  available.forEach(p => {
+    allCounts[p] = {};
+    POSITIONS.forEach(pos => { allCounts[p][pos] = 0; });
+    // archived games
+    state.games.forEach(g => {
+      if (!g.counts?.[p]) return;
+      POSITIONS.forEach(pos => { allCounts[p][pos] += g.counts[p][pos] || 0; });
+    });
+    // current game
+    POSITIONS.forEach(pos => { allCounts[p][pos] += state.counts[p]?.[pos] || 0; });
+  });
+
   const lineup={}, assigned=new Set(), scores={};
   available.forEach(p => {
     scores[p]={};
     POSITIONS.forEach(pos => {
-      const pref=state.prefs[p]?.[pos]||"neutral", count=state.counts[p]?.[pos]||0;
-      scores[p][pos]=(pref==="preferred"?10:pref==="avoid"?-20:0)-count*3;
+      const pref = state.prefs[p]?.[pos] || "neutral";
+      const count = allCounts[p][pos] || 0;
+      scores[p][pos] = (pref==="preferred"?10:pref==="avoid"?-20:0) - count*3;
     });
   });
+
   const posOrder=[...POSITIONS].sort((a,b)=>
     available.filter(p=>(state.prefs[p]?.[a]||"neutral")!=="avoid").length -
     available.filter(p=>(state.prefs[p]?.[b]||"neutral")!=="avoid").length
