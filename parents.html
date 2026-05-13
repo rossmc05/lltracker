@@ -163,13 +163,11 @@ opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-
   </div>
   <div class="tabs">
     <button class="tab-btn active" onclick="showTab('diamond')">Field</button>
-    <button class="tab-btn" onclick="showTab('stats')">Stats</button>
   </div>
 </div>
 
 <div class="content">
   <div id="tab-diamond"></div>
-  <div id="tab-stats" style="display:none"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -202,10 +200,9 @@ let activeTab = 'diamond';
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function showTab(tab) {
   activeTab = tab;
-  ['diamond','stats'].forEach((t,i) => {
-    document.getElementById('tab-'+t).style.display = t === tab ? '' : 'none';
-    document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t === tab);
-  });
+  document.getElementById('tab-diamond').style.display = 'none';
+  document.querySelectorAll('.tab-btn')[0].classList.add('active');
+  document.getElementById('tab-'+tab).style.display = '';
   render();
 }
 window.showTab = showTab;
@@ -405,8 +402,7 @@ function updateHeader() {
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
   updateHeader();
-  if (activeTab === 'diamond') renderDiamond();
-  if (activeTab === 'stats') renderStats();
+  renderDiamond();
 }
 
 // ── FIREBASE LISTENER ─────────────────────────────────────────────────────────
