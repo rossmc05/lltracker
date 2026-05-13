@@ -700,6 +700,28 @@ function autoAssign() {
   state.lineup=lineup; saveState(); render();
 }
 
+function recommitInning() {
+  if (Object.keys(state.lineup).length < 9) return;
+  const historyIdx = state.history.findIndex(h => h.game === state.game && h.inning === state.activeInning);
+  if (historyIdx === -1) return;
+
+  const assigned = Object.values(state.lineup);
+  const newBench = state.players.filter(p => !assigned.includes(p) && !state.absent.includes(p));
+  const newAbsent = [...state.absent];
+
+  state.history[historyIdx] = {
+    ...state.history[historyIdx],
+    lineup: {...state.lineup},
+    bench: newBench,
+    absent: newAbsent
+  };
+
+  recalcStatsFromHistory();
+  saveState();
+  showToast("Inning "+state.activeInning+" updated ✓");
+  render();
+}
+
 // ── COMMIT INNING ─────────────────────────────────────────────────────────────
 function commitInning() {
   if(Object.keys(state.lineup).length<9) return;
@@ -855,7 +877,8 @@ function renderLineupTab() {
     +'<div class="btn-row">'
     +'<button class="btn btn-navy" onclick="autoAssign()">⚡ Auto-Assign</button>'
     +(isViewingHistory
-      ? '<button class="btn btn-cancel" onclick="setActiveInning('+state.inning+')">→ Current Inning</button>'
+      ? '<button class="btn btn-red" onclick="recommitInning()" '+(ready?'':'disabled')+'>↺ Re-commit Inning</button>'
+        +'<button class="btn btn-cancel" onclick="setActiveInning('+state.inning+')">→ Current</button>'
       : '<button class="btn btn-red" onclick="commitInning()" '+(ready?'':'disabled')+'>✓ Commit Inning</button>')
     +'</div></div>'
     +'<div class="two-col"><div><div class="label">Field Positions</div>';
@@ -1765,7 +1788,7 @@ Object.assign(window, {
   moveBatter, setBatterAtSlot, commitBattingOrder, editBattingOrder,
   openEditInning, closeEditModal, saveEditedInning, closeModal,
   setDiamondGame, setDiamondInning, exportGamePDF,
-  addPitch, setPitchLimit, resetPitchCounts, setActiveInning
+  addPitch, setPitchLimit, resetPitchCounts, setActiveInning, recommitInning
 });
 
 </script>
