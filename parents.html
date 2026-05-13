@@ -267,7 +267,6 @@ function setSelectedGame(g) {
   renderDiamond();
 }
 function setSelectedInning(n) { selectedInning = n; renderDiamond(); }
-window.setSelectedGame = setSelectedGame;
 window.setSelectedInning = setSelectedInning;
 
 // ── RENDER DIAMOND ────────────────────────────────────────────────────────────
@@ -279,9 +278,13 @@ function renderDiamond() {
     return;
   }
 
-  if (selectedGame === null) selectedGame = allGames[allGames.length-1];
+  // Always use the latest game
+  selectedGame = allGames[allGames.length-1];
   const gameInnings = state.history.filter(h => h.game === selectedGame).sort((a,b) => a.inning - b.inning);
   if (selectedInning === null && gameInnings.length) selectedInning = gameInnings[gameInnings.length-1].inning;
+  // If a new inning has been committed since last render, auto-advance
+  const latestInning = gameInnings.length ? gameInnings[gameInnings.length-1].inning : null;
+  if (latestInning && selectedInning < latestInning) selectedInning = latestInning;
 
   const entry = state.history.find(h => h.game === selectedGame && h.inning === selectedInning);
   const info = state.gameInfo?.[selectedGame] || {};
@@ -299,18 +302,14 @@ function renderDiamond() {
     +'<div class="inning-pill"><span class="inning-label">INNING</span><span class="inning-val">'+(selectedInning||'—')+'</span></div>'
     +'</div>';
 
-  // Dropdowns
-  html += '<div class="diamond-controls"><select class="diamond-select" onchange="setSelectedGame(parseInt(this.value))">';
-  allGames.forEach(g => {
-    const gi = state.gameInfo?.[g] || {};
-    const label = 'Game '+g+(gi.opponent?' vs. '+gi.opponent:'')+(gi.date?' · '+new Date(gi.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'');
-    html += '<option value="'+g+'" '+(g===selectedGame?'selected':'')+'>'+label+'</option>';
-  });
-  html += '</select><select class="diamond-select" onchange="setSelectedInning(parseInt(this.value))">';
-  gameInnings.forEach(h => {
-    html += '<option value="'+h.inning+'" '+(h.inning===selectedInning?'selected':'')+'>Inning '+h.inning+'</option>';
-  });
-  html += '</select></div>';
+  // Inning selector only (no game selector)
+  if (gameInnings.length > 1) {
+    html += '<div class="diamond-controls"><select class="diamond-select" onchange="setSelectedInning(parseInt(this.value))">';
+    gameInnings.forEach(h => {
+      html += '<option value="'+h.inning+'" '+(h.inning===selectedInning?'selected':'')+'>Inning '+h.inning+'</option>';
+    });
+    html += '</select></div>';
+  }
 
   if (!entry) {
     html += '<div class="empty">No innings recorded for this game yet.</div>';
