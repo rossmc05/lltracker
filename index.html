@@ -684,16 +684,20 @@ function autoAssign() {
 
   // Build all-time counts across every game
   const allCounts = {};
+  const benchCounts = {};
   available.forEach(p => {
     allCounts[p] = {};
     POSITIONS.forEach(pos => { allCounts[p][pos] = 0; });
+    benchCounts[p] = 0;
     // archived games
     state.games.forEach(g => {
       if (!g.counts?.[p]) return;
       POSITIONS.forEach(pos => { allCounts[p][pos] += g.counts[p][pos] || 0; });
+      benchCounts[p] += g.counts[p].bench || 0;
     });
     // current game
     POSITIONS.forEach(pos => { allCounts[p][pos] += state.counts[p]?.[pos] || 0; });
+    benchCounts[p] += state.counts[p]?.bench || 0;
   });
 
   const lineup={}, assigned=new Set(), scores={};
@@ -702,7 +706,9 @@ function autoAssign() {
     POSITIONS.forEach(pos => {
       const pref = state.prefs[p]?.[pos] || "neutral";
       const count = allCounts[p][pos] || 0;
-      scores[p][pos] = (pref==="preferred"?10:pref==="avoid"?-20:0) - count*3;
+      const bench = benchCounts[p] || 0;
+      // Bench bonus: +2 per bench inning so players who sat more get field priority
+      scores[p][pos] = (pref==="preferred"?10:pref==="avoid"?-20:0) - count*3 + bench*2;
     });
   });
 
