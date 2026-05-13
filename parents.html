@@ -281,10 +281,14 @@ function renderDiamond() {
   // Always use the latest game
   selectedGame = allGames[allGames.length-1];
   const gameInnings = state.history.filter(h => h.game === selectedGame).sort((a,b) => a.inning - b.inning);
-  if (selectedInning === null && gameInnings.length) selectedInning = gameInnings[gameInnings.length-1].inning;
-  // If a new inning has been committed since last render, auto-advance
   const latestInning = gameInnings.length ? gameInnings[gameInnings.length-1].inning : null;
-  if (latestInning && selectedInning < latestInning) selectedInning = latestInning;
+  // Auto-advance only if no inning selected yet, or if a new inning was committed
+  if (selectedInning === null) {
+    selectedInning = latestInning;
+  } else if (latestInning && !gameInnings.find(h => h.inning === selectedInning)) {
+    // Selected inning no longer exists (e.g. new game), reset to latest
+    selectedInning = latestInning;
+  }
 
   const entry = state.history.find(h => h.game === selectedGame && h.inning === selectedInning);
   const info = state.gameInfo?.[selectedGame] || {};
