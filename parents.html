@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Phillies — Game Day</title>
+<style>
+  :root {
+    --red: #E81828; --red-dim: #5a0910;
+    --navy: #002D72; --navy-dim: #001540;
+    --bg: #0d0d0d; --bg2: #1a1a1a; --bg3: #141414;
+    --border: #2a2a2a; --border2: #333;
+    --cream: #F5F0E8; --text2: #b8b0a0; --muted: #666;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: #0d0d0d; color: #F5F0E8; font-family: 'Helvetica Neue', Arial, sans-serif; min-height: 100vh; }
+
+/* HEADER */
+.header {
+background: #E81828;
+background-image: repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px);
+border-bottom: 4px solid #002D72; padding: 0;
+}
+.header-inner {
+display: flex; align-items: center; justify-content: space-between;
+flex-wrap: wrap; gap: 10px; padding: 12px 16px;
+max-width: 700px; margin: 0 auto;
+}
+.header-brand { display: flex; align-items: center; gap: 12px; }
+.header-logo {
+width: 44px; height: 44px; border-radius: 50%;
+background: #002D72; border: 3px solid #F5F0E8;
+display: flex; align-items: center; justify-content: center;
+font-size: 20px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.header-title { font-size: 18px; font-weight: 700; color: #F5F0E8; text-transform: uppercase; letter-spacing: 2px; line-height: 1.1; }
+.header-sub { font-size: 10px; color: rgba(245,240,232,0.6); letter-spacing: 3px; margin-top: 2px; }
+.live-badge {
+display: flex; align-items: center; gap: 6px;
+padding: 4px 10px; background: rgba(0,0,0,0.2); border-radius: 100px;
+font-size: 10px; font-weight: 700; color: #F5F0E8; letter-spacing: 2px;
+}
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* TABS */
+.tabs {
+background: #002D72; border-bottom: 2px solid #000;
+padding: 0 16px; display: flex; gap: 0;
+}
+.tab-btn {
+padding: 10px 18px; border: none; border-bottom: 3px solid transparent;
+background: transparent; color: rgba(245,240,232,0.5);
+font-family: ‘Helvetica Neue’, Arial, sans-serif;
+font-weight: 700; font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+cursor: pointer; white-space: nowrap;
+}
+.tab-btn.active { color: #F5F0E8; border-bottom-color: #E81828; }
+
+.content { padding: 16px; max-width: 700px; margin: 0 auto; }
+.label {
+font-size: 10px; color: #666; letter-spacing: 3px; margin-bottom: 10px;
+text-transform: uppercase; border-bottom: 1px solid #2a2a2a; padding-bottom: 6px;
+}
+.empty { color: #555; text-align: center; padding: 40px; font-size: 14px; line-height: 1.8; }
+
+/* GAME BANNER */
+.game-banner {
+background: #002D72;
+background-image: repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 3px);
+border: 1px solid #000; border-radius: 4px; padding: 12px 16px; margin-bottom: 16px;
+display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 8px rgba(0,0,0,0.4);
+}
+.game-num { font-size: 15px; font-weight: 700; color: #F5F0E8; letter-spacing: 2px; }
+.game-meta { font-size: 11px; color: #b8b0a0; letter-spacing: 1px; margin-top: 2px; }
+.inning-pill {
+background: #0d0d0d; border: 1px solid #333; border-radius: 4px;
+padding: 6px 14px; text-align: center;
+}
+.inning-label { font-size: 9px; color: #666; letter-spacing: 3px; display: block; }
+.inning-val { font-size: 26px; font-weight: 900; color: #E81828; line-height: 1; font-family: ‘Arial Narrow’, Arial, sans-serif; }
+
+/* DIAMOND */
+.diamond-wrap { max-width: 480px; margin: 0 auto; }
+.diamond-svg-wrap {
+background: #1a3a1a;
+background-image: radial-gradient(ellipse at center, #1e4a1e 0%, #0f2a0f 100%);
+border-radius: 8px; padding: 12px; margin-bottom: 14px;
+border: 2px solid #2a4a2a;
+}
+.diamond-controls { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.diamond-select {
+flex: 1; background: #1c1c1e; border: 1px solid #444; color: #F5F0E8;
+border-radius: 3px; padding: 8px 10px;
+font-family: ‘Helvetica Neue’, Arial, sans-serif; font-size: 13px; cursor: pointer; min-width: 120px;
+}
+
+/* BENCH / BATTING */
+.bench-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.bench-chip { padding: 5px 12px; background: #1c1c1e; border: 1px solid #2a2a2e; border-radius: 3px; font-size: 12px; color: #888; }
+.batting-list { max-width: 360px; }
+.batting-row {
+display: flex; align-items: center; gap: 10px;
+padding: 7px 10px; border-radius: 3px; margin-bottom: 3px; font-size: 13px;
+}
+.batting-row:nth-child(odd) { background: #1c1c1e; }
+.bat-num { color: #E81828; font-weight: 700; width: 20px; text-align: right; font-family: ‘Arial Narrow’, Arial, sans-serif; }
+.bat-name { color: #F5F0E8; flex: 1; font-weight: 600; }
+.bat-pos { color: #555; font-size: 11px; letter-spacing: 1px; }
+
+/* STATS */
+.stats-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { padding: 8px 6px; color: #666; font-weight: 700; letter-spacing: 2px; font-size: 10px; border-bottom: 2px solid #E81828; text-align: center; }
+th.player-col { text-align: left; padding-left: 12px; }
+td { padding: 7px 4px; text-align: center; border-bottom: 1px solid #1c1c1e; }
+td.player-col { padding: 7px 12px; color: #F5F0E8; font-weight: 700; text-align: left; white-space: nowrap; }
+tr:nth-child(even) td { background: #1a1a1a; }
+tr:nth-child(odd) td  { background: #141414; }
+.stat-badge { display: inline-block; width: 24px; height: 24px; line-height: 24px; border-radius: 2px; font-size: 11px; font-weight: 700; text-align: center; }
+.progress-bar { height: 5px; background: #2a2a2a; border-radius: 2px; width: 44px; overflow: hidden; display: inline-block; vertical-align: middle; }
+.progress-fill { height: 100%; background: #E81828; border-radius: 2px; }
+
+/* LOADING */
+#loading-overlay {
+position: fixed; inset: 0; background: #0d0d0d; z-index: 2000;
+display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+}
+
+/* TOAST */
+.toast {
+position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+background: #E81828; color: #F5F0E8; padding: 10px 24px;
+border-radius: 3px; font-weight: 700; font-size: 12px; letter-spacing: 2px;
+opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width: 500px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+
+</head>
+<body>
+
+<div id="loading-overlay">
+  <div style="font-size:44px">⚾</div>
+  <div style="color:#E81828;font-size:13px;letter-spacing:3px">LOADING...</div>
+</div>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="header-logo">⚾</div>
+      <div>
+        <div class="header-title">Phillies</div>
+        <div id="header-sub" class="header-sub">GAME DAY</div>
+      </div>
+    </div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('diamond')">Field</button>
+    <button class="tab-btn" onclick="showTab('stats')">Stats</button>
+  </div>
+</div>
+
+<div class="content">
+  <div id="tab-diamond"></div>
+  <div id="tab-stats" style="display:none"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDhxIgUUF0OneOVlZL8yl3uqviGUAv-O4w",
+  authDomain: "lltracker-37f05.firebaseapp.com",
+  projectId: "lltracker-37f05",
+  storageBucket: "lltracker-37f05.firebasestorage.app",
+  messagingSenderId: "565280707160",
+  appId: "1:565280707160:web:9434aa117577ce09d5b02d"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+const STATE_DOC = doc(db, "tracker", "state");
+
+const POSITIONS = ["P","C","1B","2B","3B","SS","LF","CF","RF"];
+const POS_NAMES = {P:"Pitcher",C:"Catcher","1B":"1st Base","2B":"2nd Base","3B":"3rd Base",SS:"Shortstop",LF:"Left Field",CF:"Center Field",RF:"Right Field"};
+
+let state = null;
+let selectedGame = null;
+let selectedInning = null;
+let activeTab = 'diamond';
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function showTab(tab) {
+  activeTab = tab;
+  ['diamond','stats'].forEach((t,i) => {
+    document.getElementById('tab-'+t).style.display = t === tab ? '' : 'none';
+    document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t === tab);
+  });
+  render();
+}
+window.showTab = showTab;
+
+// ── DIAMOND SVG ───────────────────────────────────────────────────────────────
+function buildDiamondSVG(lineup, width) {
+  const w = width || 320, h = w * 0.92;
+  const cx = w / 2;
+  const scale = w / 320;
+  const positions = {
+    P:    { x: cx,              y: h * 0.58 },
+    C:    { x: cx,              y: h * 0.92 },
+    '1B': { x: cx + 95*scale,   y: h * 0.55 },
+    '2B': { x: cx + 48*scale,   y: h * 0.28 },
+    '3B': { x: cx - 95*scale,   y: h * 0.55 },
+    SS:   { x: cx - 48*scale,   y: h * 0.28 },
+    LF:   { x: cx - 100*scale,  y: h * 0.13 },
+    CF:   { x: cx,              y: h * 0.07 },
+    RF:   { x: cx + 100*scale,  y: h * 0.13 },
+  };
+  const home   = { x: cx,              y: h * 0.85 };
+  const first  = { x: cx + 85*scale,   y: h * 0.62 };
+  const second = { x: cx,              y: h * 0.38 };
+  const third  = { x: cx - 85*scale,   y: h * 0.62 };
+
+  function nameLabel(pos, player) {
+    const p = positions[pos];
+    if (!p) return '';
+    const hasPlayer = player && player.length > 0;
+    const boxW = 70*scale, boxH = 30*scale, r = 4;
+    const bx = p.x - boxW/2, by = p.y - boxH/2;
+    const bgColor = hasPlayer ? '#E81828' : '#333';
+    const fontSize = Math.max(9, 11*scale);
+    const posSize = Math.max(7, 8*scale);
+    return '<rect x="'+bx+'" y="'+by+'" width="'+boxW+'" height="'+boxH+'" rx="'+r+'" fill="'+bgColor+'" opacity="'+(hasPlayer?1:0.4)+'"/>'
+      +'<text x="'+p.x+'" y="'+(p.y - boxH/2 + boxH*0.38)+'" text-anchor="middle" fill="white" font-size="'+posSize+'" font-family="Arial Narrow, Arial" font-weight="700" opacity="0.8">'+pos+'</text>'
+      +'<text x="'+p.x+'" y="'+(p.y - boxH/2 + boxH*0.75)+'" text-anchor="middle" fill="white" font-size="'+fontSize+'" font-family="Helvetica Neue, Arial" font-weight="600">'+(hasPlayer?player:'—')+'</text>';
+  }
+
+  let svg = '<svg viewBox="0 0 '+w+' '+h+'" xmlns="http://www.w3.org/2000/svg" width="100%">';
+  svg += '<path d="M '+(cx-125*scale)+' '+(h*0.45)+' Q '+cx+' '+(h*-0.05)+' '+(cx+125*scale)+' '+(h*0.45)+'" fill="none" stroke="#2d5a2d" stroke-width="'+(2*scale)+'"/>';
+  svg += '<polygon points="'+home.x+','+home.y+' '+first.x+','+first.y+' '+second.x+','+second.y+' '+third.x+','+third.y+'" fill="#1e4a1e" stroke="#2d5a2d" stroke-width="'+(1.5*scale)+'"/>';
+  svg += '<line x1="'+home.x+'" y1="'+home.y+'" x2="'+first.x+'" y2="'+first.y+'" stroke="#8B7355" stroke-width="'+(2*scale)+'"/>';
+  svg += '<line x1="'+first.x+'" y1="'+first.y+'" x2="'+second.x+'" y2="'+second.y+'" stroke="#8B7355" stroke-width="'+(2*scale)+'"/>';
+  svg += '<line x1="'+second.x+'" y1="'+second.y+'" x2="'+third.x+'" y2="'+third.y+'" stroke="#8B7355" stroke-width="'+(2*scale)+'"/>';
+  svg += '<line x1="'+third.x+'" y1="'+third.y+'" x2="'+home.x+'" y2="'+home.y+'" stroke="#8B7355" stroke-width="'+(2*scale)+'"/>';
+  [[first],[second],[third]].forEach(([b]) => {
+    svg += '<rect x="'+(b.x-8*scale)+'" y="'+(b.y-8*scale)+'" width="'+(16*scale)+'" height="'+(16*scale)+'" fill="white" rx="2"/>';
+  });
+  svg += '<polygon points="'+home.x+','+(home.y+10*scale)+' '+(home.x-8*scale)+','+(home.y+4*scale)+' '+(home.x-8*scale)+','+(home.y-6*scale)+' '+(home.x+8*scale)+','+(home.y-6*scale)+' '+(home.x+8*scale)+','+(home.y+4*scale)+'" fill="white"/>';
+  svg += '<circle cx="'+positions.P.x+'" cy="'+positions.P.y+'" r="'+(8*scale)+'" fill="#8B7355" opacity="0.6"/>';
+  POSITIONS.forEach(pos => { svg += nameLabel(pos, lineup[pos]); });
+  svg += '</svg>';
+  return svg;
+}
+
+// ── SELECTORS ─────────────────────────────────────────────────────────────────
+function setSelectedGame(g) {
+  selectedGame = g;
+  const innings = state.history.filter(h => h.game === g).sort((a,b) => a.inning - b.inning);
+  selectedInning = innings.length ? innings[innings.length-1].inning : null;
+  renderDiamond();
+}
+function setSelectedInning(n) { selectedInning = n; renderDiamond(); }
+window.setSelectedGame = setSelectedGame;
+window.setSelectedInning = setSelectedInning;
+
+// ── RENDER DIAMOND ────────────────────────────────────────────────────────────
+function renderDiamond() {
+  if (!state) return;
+  const allGames = [...new Set(state.history.map(h => h.game))].sort((a,b) => a-b);
+  if (allGames.length === 0) {
+    document.getElementById('tab-diamond').innerHTML = '<div class="empty">No games recorded yet.<br>Check back once the game starts! ⚾</div>';
+    return;
+  }
+
+  if (selectedGame === null) selectedGame = allGames[allGames.length-1];
+  const gameInnings = state.history.filter(h => h.game === selectedGame).sort((a,b) => a.inning - b.inning);
+  if (selectedInning === null && gameInnings.length) selectedInning = gameInnings[gameInnings.length-1].inning;
+
+  const entry = state.history.find(h => h.game === selectedGame && h.inning === selectedInning);
+  const info = state.gameInfo?.[selectedGame] || {};
+  const dateStr = info.date ? new Date(info.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+  const oppStr = info.opponent || '';
+  const positionOf = {};
+  if (entry) Object.entries(entry.lineup).forEach(([pos,p]) => { positionOf[p] = pos; });
+
+  let html = '<div class="diamond-wrap">';
+
+  // Game banner
+  html += '<div class="game-banner">'
+    +'<div><div class="game-num">GAME '+selectedGame+(oppStr?' — vs. '+oppStr:'')+'</div>'
+    +'<div class="game-meta">'+(dateStr||'')+'</div></div>'
+    +'<div class="inning-pill"><span class="inning-label">INNING</span><span class="inning-val">'+(selectedInning||'—')+'</span></div>'
+    +'</div>';
+
+  // Dropdowns
+  html += '<div class="diamond-controls"><select class="diamond-select" onchange="setSelectedGame(parseInt(this.value))">';
+  allGames.forEach(g => {
+    const gi = state.gameInfo?.[g] || {};
+    const label = 'Game '+g+(gi.opponent?' vs. '+gi.opponent:'')+(gi.date?' · '+new Date(gi.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'');
+    html += '<option value="'+g+'" '+(g===selectedGame?'selected':'')+'>'+label+'</option>';
+  });
+  html += '</select><select class="diamond-select" onchange="setSelectedInning(parseInt(this.value))">';
+  gameInnings.forEach(h => {
+    html += '<option value="'+h.inning+'" '+(h.inning===selectedInning?'selected':'')+'>Inning '+h.inning+'</option>';
+  });
+  html += '</select></div>';
+
+  if (!entry) {
+    html += '<div class="empty">No innings recorded for this game yet.</div>';
+  } else {
+    html += '<div class="two-col">'
+      +'<div><div class="label">Field</div>'
+      +'<div class="diamond-svg-wrap">'+buildDiamondSVG(entry.lineup)+'</div>';
+
+    if (entry.bench && entry.bench.length) {
+      html += '<div class="label">Bench</div><div class="bench-chips">';
+      entry.bench.forEach(p => { html += '<span class="bench-chip">'+p+'</span>'; });
+      html += '</div>';
+    }
+    if (entry.absent && entry.absent.length) {
+      html += '<div class="label" style="color:#E81828;opacity:0.6">Absent</div><div class="bench-chips">';
+      entry.absent.forEach(p => { html += '<span class="bench-chip" style="color:#E81828;opacity:0.6;border-color:#5a0910;text-decoration:line-through">'+p+'</span>'; });
+      html += '</div>';
+    }
+
+    html += '</div><div><div class="label">Batting Order</div><div class="batting-list">';
+    state.battingOrder.forEach((player, idx) => {
+      const pos = positionOf[player] || (entry.absent?.includes(player)?'ABS':'BENCH');
+      const isAbs = entry.absent?.includes(player);
+      html += '<div class="batting-row" style="opacity:'+(isAbs?'0.4':'1')+'">'
+        +'<span class="bat-num">'+(idx+1)+'</span>'
+        +'<span class="bat-name">'+player+'</span>'
+        +'<span class="bat-pos">'+pos+'</span>'
+        +'</div>';
+    });
+    html += '</div></div></div>';
+  }
+
+  html += '</div>';
+  document.getElementById('tab-diamond').innerHTML = html;
+}
+
+// ── RENDER STATS ──────────────────────────────────────────────────────────────
+function renderStats() {
+  if (!state) return;
+
+  // Aggregate counts across all games
+  const merged = {};
+  state.players.forEach(p => {
+    merged[p] = { bench: 0 };
+    POSITIONS.forEach(pos => { merged[p][pos] = 0; });
+    state.games.forEach(g => {
+      if (!g.counts?.[p]) return;
+      POSITIONS.forEach(pos => { merged[p][pos] += g.counts[p][pos] || 0; });
+      merged[p].bench += g.counts[p].bench || 0;
+    });
+    POSITIONS.forEach(pos => { merged[p][pos] += state.counts[p]?.[pos] || 0; });
+    merged[p].bench += state.counts[p]?.bench || 0;
+  });
+
+  const totalAll = p => POSITIONS.reduce((s,pos) => s+(merged[p]?.[pos]||0), 0);
+  const maxInn = Math.max(...state.players.map(totalAll), 1);
+
+  let html = '<div class="label">Season Stats — '+state.game+' game(s) · '+state.history.length+' inning(s)</div>';
+  html += '<div class="stats-scroll"><table><thead><tr><th class="player-col">Player</th>';
+  POSITIONS.forEach(p => { html += '<th>'+p+'</th>'; });
+  html += '<th style="color:#666">Bench</th><th style="color:#E81828">Total</th></tr></thead><tbody>';
+
+  state.players.forEach(player => {
+    const total = totalAll(player);
+    html += '<tr><td class="player-col">'+player+'</td>';
+    POSITIONS.forEach(pos => {
+      const count = merged[player]?.[pos] || 0;
+      if (!count) { html += '<td><span style="color:#2a2a2a">—</span></td>'; return; }
+      html += '<td><span class="stat-badge" style="background:#5a0910;color:#E81828">'+count+'</span></td>';
+    });
+    const pct = Math.round((total/maxInn)*100);
+    html += '<td style="text-align:center"><span style="color:#555;font-size:12px">'+(merged[player]?.bench||0)+'</span></td>'
+      +'<td style="text-align:center"><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div>'
+      +'<span style="color:#E81828;font-weight:700;margin-left:6px">'+total+'</span></td></tr>';
+  });
+
+  html += '</tbody></table></div>';
+  document.getElementById('tab-stats').innerHTML = html;
+}
+
+// ── HEADER SUB ────────────────────────────────────────────────────────────────
+function updateHeader() {
+  if (!state) return;
+  const info = state.gameInfo?.[state.game] || {};
+  const opp = info.opponent ? 'vs. '+info.opponent : 'Game '+state.game;
+  document.getElementById('header-sub').textContent = opp.toUpperCase()+' · INNING '+state.inning;
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render() {
+  updateHeader();
+  if (activeTab === 'diamond') renderDiamond();
+  if (activeTab === 'stats') renderStats();
+}
+
+// ── FIREBASE LISTENER ─────────────────────────────────────────────────────────
+onSnapshot(STATE_DOC, (snap) => {
+  if (snap.exists()) {
+    state = snap.data();
+    if (!state.games) state.games = [];
+    if (!state.battingOrder) state.battingOrder = [...(state.players||[])];
+    if (!state.gameInfo) state.gameInfo = {};
+    document.getElementById('loading-overlay').style.display = 'none';
+    render();
+  }
+}, (err) => {
+  console.error(err);
+  document.getElementById('loading-overlay').innerHTML = '<div style="font-size:40px">⚾</div><div style="color:#E81828;font-size:13px;letter-spacing:2px">CONNECTION ERROR<br><span style="font-size:11px;color:#666">Check your internet connection</span></div>';
+});
+</script>
+
+</body>
+</html>
