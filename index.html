@@ -525,7 +525,7 @@ function freshPrefs(players) {
 
 function defaultState() {
   const players = [...DEFAULT_PLAYERS];
-  return { players, prefs: freshPrefs(players), counts: freshCounts(players), history: [], inning: 1, activeInning: 1, lineup: {}, game: 1, games: [], battingOrder: [...players], battingCommitted: false, pendingBatting: [...players], absent: [], gameInfo: {}, pitchCounts: {}, pitchLimit: 50, ageGroup: '7-8', removedPitchers: {} };
+  return { players, prefs: freshPrefs(players), counts: freshCounts(players), history: [], inning: 1, activeInning: 1, lineup: {}, draftLineups: {}, game: 1, games: [], battingOrder: [...players], battingCommitted: false, pendingBatting: [...players], absent: [], gameInfo: {}, pitchCounts: {}, pitchLimit: 50, ageGroup: '7-8', removedPitchers: {} };
 }
 
 function ensureFields(s) {
@@ -541,6 +541,7 @@ function ensureFields(s) {
   if (!s.ageGroup) s.ageGroup = '7-8';
   if (!s.removedPitchers) s.removedPitchers = {};
   if (!s.activeInning) s.activeInning = s.inning || 1;
+  if (!s.draftLineups) s.draftLineups = {};
   return s;
 }
 
@@ -694,6 +695,10 @@ function autoAssign() {
     });
     POSITIONS.forEach(pos => { allCounts[p][pos] += state.counts[p]?.[pos] || 0; });
     benchTotal[p] += state.counts[p]?.bench || 0;
+    // Absent from a game = 1 bench credit per game missed
+    const absentGames = new Set();
+    state.history.forEach(h => { if ((h.absent||[]).includes(p)) absentGames.add(h.game); });
+    benchTotal[p] += absentGames.size;
   });
 
   // ── POSITIONS PLAYED THIS GAME ────────────────────────────────────────────
@@ -729,20 +734,14 @@ function autoAssign() {
   available.forEach(p => { recentBench[p] = 0; });
   state.history.filter(h => h.game >= state.game - 1).forEach(h => {
     (h.bench||[]).forEach(p => { if (recentBench[p] !== undefined) recentBench[p]++; });
-    // Count each inning absent as one bench inning for equity purposes
-    (h.absent||[]).forEach(p => { if (recentBench[p] !== undefined) recentBench[p]++; });
   });
-
-  // ── ABSENT LAST GAME — count as one extra bench inning ───────────────────
-  // (already counted per-inning above, but if a player missed the whole last
-  //  game and it had no history entries yet, ensure at least +1 credit)
-  const lastGameInnings = state.history.filter(h => h.game === lastGameNum);
-  if (lastGameInnings.length === 0) {
-    // No history for last game — check archived game's absent if stored
-    // Nothing extra needed; the per-inning loop above handles it
-  } else {
-    // Already handled per inning in loop above
-  }
+  // Absent from a game = 1 bench credit per game (not per inning)
+  const recentAbsentGames = {};
+  available.forEach(p => { recentAbsentGames[p] = new Set(); });
+  state.history.filter(h => h.game >= state.game - 1).forEach(h => {
+    (h.absent||[]).forEach(p => { if (recentAbsentGames[p]) recentAbsentGames[p].add(h.game); });
+  });
+  available.forEach(p => { recentBench[p] += recentAbsentGames[p].size; });
 
   // ── TOTAL INNINGS PLAYED THIS GAME ───────────────────────────────────────
   const thisGameInnings = {};
@@ -833,30 +832,14 @@ function autoAssign() {
   });
 
   state.lineup = lineup;
+  state.draftLineups[state.activeInning] = {...lineup};
   saveState();
   render();
 }
 
 function recommitInning() {
   if (Object.keys(state.lineup).length < 9) return;
-  const historyIdx = state.history.findIndex(h => h.game === state.game && h.inning === state.activeInning);
-  if (historyIdx === -1) return;
-
-  const assigned = Object.values(state.lineup);
-  const newBench = state.players.filter(p => !assigned.includes(p) && !state.absent.includes(p));
-  const newAbsent = [...state.absent];
-
-  state.history[historyIdx] = {
-    ...state.history[historyIdx],
-    lineup: {...state.lineup},
-    bench: newBench,
-    absent: newAbsent
-  };
-
-  recalcStatsFromHistory();
-  saveState();
-  showToast("Inning "+state.activeInning+" updated ✓");
-  render();
+  commitInning();
 }
 
 // ── VALIDATE LINEUP ───────────────────────────────────────────────────────────
@@ -953,28 +936,49 @@ function commitInning() {
   const assigned=Object.values(state.lineup);
   const bench=state.players.filter(p=>!assigned.includes(p) && !state.absent.includes(p));
   const absent=[...state.absent];
-  Object.entries(state.lineup).forEach(([pos,p])=>{
-    if(!state.counts[p]) state.counts[p]={};
-    state.counts[p][pos]=(state.counts[p][pos]||0)+1;
-  });
-  bench.forEach(p=>{
-    if(!state.counts[p]) state.counts[p]={};
-    state.counts[p].bench=(state.counts[p].bench||0)+1;
-  });
-  state.history.push({game:state.game,inning:state.inning,lineup:{...state.lineup},bench:[...bench],absent:[...absent]});
-  state.inning++; state.activeInning = state.inning; state.lineup={};
-  saveState(); showToast("Inning recorded ✓"); render();
+
+  // Check if re-committing an existing inning
+  const existingIdx = state.history.findIndex(h => h.game === state.game && h.inning === state.activeInning);
+  if (existingIdx >= 0) {
+    state.history[existingIdx] = {game:state.game,inning:state.activeInning,lineup:{...state.lineup},bench:[...bench],absent:[...absent]};
+    recalcStatsFromHistory();
+  } else {
+    Object.entries(state.lineup).forEach(([pos,p])=>{
+      if(!state.counts[p]) state.counts[p]={};
+      state.counts[p][pos]=(state.counts[p][pos]||0)+1;
+    });
+    bench.forEach(p=>{
+      if(!state.counts[p]) state.counts[p]={};
+      state.counts[p].bench=(state.counts[p].bench||0)+1;
+    });
+    state.history.push({game:state.game,inning:state.activeInning,lineup:{...state.lineup},bench:[...bench],absent:[...absent]});
+    // Advance inning pointer if we committed the next sequential inning
+    if (state.activeInning === state.inning) {
+      state.inning++;
+      state.activeInning = state.inning;
+    }
+  }
+
+  // Clear the draft for this inning
+  delete state.draftLineups[state.activeInning - (state.activeInning === state.inning ? 1 : 0)];
+  state.lineup = state.draftLineups[state.activeInning] ? {...state.draftLineups[state.activeInning]} : {};
+
+  saveState(); showToast("Inning "+state.activeInning+" set ✓"); render();
 }
 
 function setActiveInning(n) {
   state.activeInning = n;
-  // If selecting the next-to-commit inning, load its current lineup draft
-  // Otherwise load the historical lineup for that inning
-  if (n === state.inning) {
-    // already on current draft — nothing to load
+  // Load draft if exists, otherwise load committed history, otherwise blank
+  if (state.draftLineups[n] && Object.keys(state.draftLineups[n]).length > 0) {
+    state.lineup = {...state.draftLineups[n]};
   } else {
     const entry = state.history.find(h => h.game === state.game && h.inning === n);
-    if (entry) state.lineup = {...entry.lineup};
+    if (entry) {
+      state.lineup = {...entry.lineup};
+      state.draftLineups[n] = {...entry.lineup};
+    } else {
+      state.lineup = {};
+    }
   }
   saveState(); render();
 }
@@ -1014,7 +1018,7 @@ function confirmGameDetails() {
 
   if (isNewGame) {
     state.games.push({game:state.game, innings:state.inning-1, counts:JSON.parse(JSON.stringify(state.counts))});
-    state.game++; state.inning=1; state.lineup={};
+    state.game++; state.inning=1; state.activeInning=1; state.lineup={}; state.draftLineups={};
     state.counts=freshCounts(state.players);
     rotateBattingOrder();
     state.gameInfo[state.game] = { date, opponent };    saveState(); showToast(`Game ${state.game} — Play ball! ⚾`, "#002D72"); render();
@@ -1026,8 +1030,14 @@ function confirmGameDetails() {
 
 // ── ACTIONS ───────────────────────────────────────────────────────────────────
 function setPos(pos,player) {
-  Object.keys(state.lineup).forEach(p=>{if(state.lineup[p]===player)delete state.lineup[p];});
-  if(player) state.lineup[pos]=player; else delete state.lineup[pos];
+  // Always edit the draft for the active inning
+  if (!state.draftLineups[state.activeInning]) state.draftLineups[state.activeInning] = {};
+  const draft = state.draftLineups[state.activeInning];
+  // Remove player from other positions in this draft
+  Object.keys(draft).forEach(p=>{ if(draft[p]===player) delete draft[p]; });
+  if(player) draft[pos]=player; else delete draft[pos];
+  // Keep state.lineup in sync with the active inning's draft
+  state.lineup = {...draft};
   saveState(); renderLineupTab();
 }
 function cyclePref(player,pos) {
@@ -1076,15 +1086,27 @@ function renderLineupTab() {
   const gameTitle = 'GAME '+state.game+(opponentStr?' — vs. '+opponentStr:'');
   const gameMeta = (dateStr?dateStr+' · ':'')+( state.inning-1)+' inning(s) played';
 
-  // Build inning dropdown — all committed innings + current next inning
-  const committedInnings = state.history.filter(h=>h.game===state.game).map(h=>h.inning).sort((a,b)=>a-b);
-  let inningOpts = '';
-  committedInnings.forEach(n => {
-    inningOpts += '<option value="'+n+'" '+(state.activeInning===n?'selected':'')+'>Inning '+n+' ✓</option>';
-  });
-  inningOpts += '<option value="'+state.inning+'" '+(state.activeInning===state.inning?'selected':'')+'>Inning '+state.inning+' (next)</option>';
+  // Build inning dropdown:
+  // - committed innings (from history) marked ✓
+  // - drafted but not yet committed innings marked ✎
+  // - next uncommitted slot always available
+  const committedInnings = new Set(state.history.filter(h=>h.game===state.game).map(h=>h.inning));
+  const draftedInnings = new Set(Object.keys(state.draftLineups).map(Number).filter(n => !committedInnings.has(n)));
+  const allInningNums = new Set([...committedInnings, ...draftedInnings]);
+  // Always include next inning to commit and one beyond for pre-planning
+  for (let n = state.inning; n <= state.inning + 5; n++) allInningNums.add(n);
+  const sortedInnings = [...allInningNums].sort((a,b)=>a-b);
 
-  const isViewingHistory = state.activeInning !== state.inning;
+  let inningOpts = '';
+  sortedInnings.forEach(n => {
+    const isCommitted = committedInnings.has(n);
+    const isDraft = draftedInnings.has(n) && !isCommitted;
+    const hasDraft = state.draftLineups[n] && Object.keys(state.draftLineups[n]).length > 0;
+    const label = 'Inning '+n+(isCommitted?' ✓':hasDraft?' ✎':'');
+    inningOpts += '<option value="'+n+'" '+(state.activeInning===n?'selected':'')+'>'+label+'</option>';
+  });
+
+  const isCommitted = committedInnings.has(state.activeInning);
 
   let html='<div class="game-banner"><div>'
     +'<div class="game-num">'+gameTitle+'</div>'
@@ -1097,16 +1119,15 @@ function renderLineupTab() {
     +'<div class="inning-display"><span class="inning-label">INNING</span><span class="inning-val">'+state.activeInning+'</span></div>'
     +'<select onchange="setActiveInning(parseInt(this.value))" style="background:#1c1c1e;border:1px solid #444;color:#F5F0E8;border-radius:3px;padding:6px 10px;font-family:\'Helvetica Neue\',Arial,sans-serif;font-size:12px;cursor:pointer">'
     +inningOpts+'</select>'
-    +(isViewingHistory?'<span style="font-size:10px;color:#f59e0b;letter-spacing:1px;padding:3px 8px;background:#3a2d0a;border-radius:2px;border:1px solid #f59e0b">VIEWING PAST</span>':'')
+    +(isCommitted?'<span style="font-size:10px;color:#f59e0b;letter-spacing:1px;padding:3px 8px;background:#3a2d0a;border-radius:2px;border:1px solid #f59e0b">COMMITTED</span>':'')
     +'</div>'
     +'<div class="btn-row">'
     +'<button class="btn btn-navy" onclick="autoAssign()">⚡ Auto-Assign</button>'
-    +(isViewingHistory
-      ? '<button class="btn btn-red" onclick="recommitInning()" '+(ready?'':'disabled')+'>↺ Re-commit Inning</button>'
-        +'<button class="btn btn-cancel" onclick="setActiveInning('+state.inning+')">→ Current</button>'
+    +(isCommitted
+      ? '<button class="btn btn-red" onclick="recommitInning()" '+(ready?'':'disabled')+'>↺ Re-commit</button>'
       : '<button class="btn btn-red" onclick="setGameLineup()" '+(ready?'':'disabled')+'>✓ Set Game Lineup</button>')
     +'</div></div>'
-    +'<div class="two-col"><div><div class="label">Field Positions</div>';
+    +'<div class="two-col"><div><div class="label">Field Positions — Inning '+state.activeInning+'</div>';
 
   POSITIONS.forEach(pos=>{
     const player=state.lineup[pos]||"";
@@ -1247,10 +1268,12 @@ function allGamesCounts() {
     });
     POSITIONS.forEach(pos=>{merged[p][pos]+=state.counts[p]?.[pos]||0;});
     merged[p].bench+=state.counts[p]?.bench||0;
-    // Count each game inning where player was absent as 1 bench inning
+    // Count each game where player was absent as just 1 bench inning total
+    const absentGames = new Set();
     state.history.forEach(h=>{
-      if((h.absent||[]).includes(p)) merged[p].bench+=1;
+      if((h.absent||[]).includes(p)) absentGames.add(h.game);
     });
+    merged[p].bench += absentGames.size;
   });
   return merged;
 }
