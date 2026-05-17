@@ -97,6 +97,7 @@
     transition: opacity 0.15s;
   }
   .btn-red    { border-color: #E81828;   background: #5a0910;   color: #E81828; }
+  .btn-green  { border-color: #22c55e;   background: #14532d;   color: #22c55e; }
   .btn-navy   { border-color: #002D72;  background: #001540;  color: #6b9fff; }
   .btn-cancel { border-color: #444; background: #222; color: #d0c8b8; }
   .btn-gold   { border-color: #C5A028;  background: #3a2d0a;  color: #C5A028; }
@@ -885,11 +886,14 @@ function validateLineup() {
 
 function setGameLineup() {
   const { errors, warnings } = validateLineup();
-  if (errors.length > 0 || warnings.length > 0) {
-    showValidationModal(errors, warnings);
-  } else {
-    commitInning();
+  if (errors.length === 0 && warnings.length === 0) {
+    showModal("LINEUP CHECK", "All good — no issues found with this lineup.", "OK", closeModal, "btn-green");
+    // Override the confirm button to just close
+    const btn = document.getElementById("modal-confirm-btn");
+    btn.onclick = closeModal;
+    return;
   }
+  showValidationModal(errors, warnings);
 }
 
 function showValidationModal(errors, warnings) {
@@ -918,15 +922,9 @@ function showValidationModal(errors, warnings) {
   document.getElementById("modal-title").textContent = "LINEUP CHECK";
   document.getElementById("modal-msg").innerHTML = body;
   const btn = document.getElementById("modal-confirm-btn");
-  if (errors.length > 0) {
-    btn.textContent = "Fix Errors";
-    btn.className = "btn btn-cancel";
-    btn.onclick = closeModal;
-  } else {
-    btn.textContent = "Set Lineup Anyway";
-    btn.className = "btn btn-red";
-    btn.onclick = () => { closeModal(); commitInning(); };
-  }
+  btn.textContent = "OK";
+  btn.className = "btn btn-cancel";
+  btn.onclick = closeModal;
   document.getElementById("modal-overlay").style.display = "flex";
 }
 
@@ -1123,9 +1121,10 @@ function renderLineupTab() {
     +'</div>'
     +'<div class="btn-row">'
     +'<button class="btn btn-navy" onclick="autoAssign()">⚡ Auto-Assign</button>'
+    +'<button class="btn btn-cancel" style="font-size:10px;padding:8px 12px" onclick="setGameLineup()">⚑ Check Lineup</button>'
     +(isCommitted
       ? '<button class="btn btn-red" onclick="recommitInning()" '+(ready?'':'disabled')+'>↺ Re-commit Inning</button>'
-      : '<button class="btn btn-red" onclick="setGameLineup()" '+(ready?'':'disabled')+'>✓ Commit Inning</button>')
+      : '<button class="btn btn-red" onclick="commitInning()" '+(ready?'':'disabled')+'>✓ Commit Inning</button>')
     +'</div></div>'
     +'<div class="two-col"><div><div class="label">Field Positions — Inning '+state.activeInning+'</div>';
 
