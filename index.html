@@ -438,7 +438,7 @@
 <div id="modal-overlay" class="modal-overlay" style="display:none">
   <div class="modal-box">
     <div class="modal-title" id="modal-title"></div>
-    <div class="modal-msg" id="modal-msg"></div>
+    <div id="modal-msg" style="font-size:13px;color:#b8b0a0;line-height:1.6;margin-bottom:20px;max-height:60vh;overflow-y:auto"></div>
     <div class="modal-btns">
       <button class="btn btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn btn-red" id="modal-confirm-btn">Confirm</button>
@@ -590,7 +590,7 @@ initApp();
 // ── MODAL ─────────────────────────────────────────────────────────────────────
 function showModal(title, msg, confirmLabel, onConfirm, confirmClass) {
   document.getElementById("modal-title").textContent = title;
-  document.getElementById("modal-msg").textContent = msg;
+  document.getElementById("modal-msg").innerHTML = '<span style="font-size:13px;color:#b8b0a0;line-height:1.6">'+msg+'</span>';
   const btn = document.getElementById("modal-confirm-btn");
   btn.textContent = confirmLabel;
   btn.className = "btn " + (confirmClass || "btn-red");
@@ -859,6 +859,94 @@ function recommitInning() {
   render();
 }
 
+// ── VALIDATE LINEUP ───────────────────────────────────────────────────────────
+function validateLineup() {
+  const errors = [];
+  const warnings = [];
+
+  // Check all positions filled
+  POSITIONS.forEach(pos => {
+    if (!state.lineup[pos]) errors.push(pos+' is not filled');
+  });
+
+  // Check each assigned player
+  Object.entries(state.lineup).forEach(([pos, player]) => {
+    const pref = state.prefs[player]?.[pos] || "neutral";
+
+    // Avoid violation
+    if (pref === "avoid") errors.push(player+' has ✗ Avoid set for '+pos);
+
+    // Pitcher rules
+    if (pos === 'P') {
+      if (isRemovedPitcher(player)) errors.push(player+' was already removed from the mound this game');
+      const caught = getCatcherInnings(player);
+      if (caught >= 4) errors.push(player+' caught '+caught+' innings — ineligible to pitch today');
+      const lastGameNum = state.game - 1;
+      const lastGameHistory = state.history.filter(h => h.game === lastGameNum);
+      const pitchedLastGame = new Set(lastGameHistory.map(h => h.lineup?.['P']).filter(Boolean));
+      if (pitchedLastGame.has(player)) warnings.push(player+' pitched last game');
+      const pitches = getPitches(player);
+      const limit = getPitchLimit();
+      if (pitches >= limit) errors.push(player+' has reached the pitch limit ('+pitches+'/'+limit+')');
+      else if (pitches >= limit * 0.8) warnings.push(player+' is near the pitch limit ('+pitches+'/'+limit+')');
+    }
+
+    // Catcher rules
+    if (pos === 'C') {
+      if (!catcherEligibility(player).eligible) errors.push(player+' threw 41+ pitches — ineligible for catcher');
+    }
+  });
+
+  return { errors, warnings };
+}
+
+function setGameLineup() {
+  const { errors, warnings } = validateLineup();
+  if (errors.length > 0 || warnings.length > 0) {
+    showValidationModal(errors, warnings);
+  } else {
+    commitInning();
+  }
+}
+
+function showValidationModal(errors, warnings) {
+  let body = '';
+  if (errors.length) {
+    body += '<div style="margin-bottom:12px">'
+      +'<div style="font-size:10px;color:#E81828;letter-spacing:2px;font-weight:700;margin-bottom:8px">ERRORS — Must fix before setting</div>';
+    errors.forEach(e => {
+      body += '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;padding:8px 10px;background:#2a0a0a;border:1px solid #5a0910;border-radius:3px">'
+        +'<span style="color:#E81828;font-size:14px;flex-shrink:0">✗</span>'
+        +'<span style="color:#F5F0E8;font-size:13px">'+e+'</span></div>';
+    });
+    body += '</div>';
+  }
+  if (warnings.length) {
+    body += '<div style="margin-bottom:12px">'
+      +'<div style="font-size:10px;color:#f59e0b;letter-spacing:2px;font-weight:700;margin-bottom:8px">WARNINGS — Can still set lineup</div>';
+    warnings.forEach(w => {
+      body += '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;padding:8px 10px;background:#3a2d0a;border:1px solid #f59e0b;border-radius:3px">'
+        +'<span style="color:#f59e0b;font-size:14px;flex-shrink:0">⚠</span>'
+        +'<span style="color:#F5F0E8;font-size:13px">'+w+'</span></div>';
+    });
+    body += '</div>';
+  }
+
+  document.getElementById("modal-title").textContent = "LINEUP CHECK";
+  document.getElementById("modal-msg").innerHTML = body;
+  const btn = document.getElementById("modal-confirm-btn");
+  if (errors.length > 0) {
+    btn.textContent = "Fix Errors";
+    btn.className = "btn btn-cancel";
+    btn.onclick = closeModal;
+  } else {
+    btn.textContent = "Set Lineup Anyway";
+    btn.className = "btn btn-red";
+    btn.onclick = () => { closeModal(); commitInning(); };
+  }
+  document.getElementById("modal-overlay").style.display = "flex";
+}
+
 // ── COMMIT INNING ─────────────────────────────────────────────────────────────
 function commitInning() {
   if(Object.keys(state.lineup).length<9) return;
@@ -1016,7 +1104,7 @@ function renderLineupTab() {
     +(isViewingHistory
       ? '<button class="btn btn-red" onclick="recommitInning()" '+(ready?'':'disabled')+'>↺ Re-commit Inning</button>'
         +'<button class="btn btn-cancel" onclick="setActiveInning('+state.inning+')">→ Current</button>'
-      : '<button class="btn btn-red" onclick="commitInning()" '+(ready?'':'disabled')+'>✓ Commit Inning</button>')
+      : '<button class="btn btn-red" onclick="setGameLineup()" '+(ready?'':'disabled')+'>✓ Set Game Lineup</button>')
     +'</div></div>'
     +'<div class="two-col"><div><div class="label">Field Positions</div>';
 
@@ -1159,6 +1247,10 @@ function allGamesCounts() {
     });
     POSITIONS.forEach(pos=>{merged[p][pos]+=state.counts[p]?.[pos]||0;});
     merged[p].bench+=state.counts[p]?.bench||0;
+    // Count each game inning where player was absent as 1 bench inning
+    state.history.forEach(h=>{
+      if((h.absent||[]).includes(p)) merged[p].bench+=1;
+    });
   });
   return merged;
 }
@@ -1990,7 +2082,7 @@ Object.assign(window, {
   moveBatter, setBatterAtSlot, commitBattingOrder, editBattingOrder,
   openEditInning, closeEditModal, saveEditedInning, closeModal,
   setDiamondGame, setDiamondInning, exportGamePDF,
-  addPitch, setAgeGroup, resetPitchCounts, setActiveInning, recommitInning, markPitcherRemoved
+  addPitch, setAgeGroup, resetPitchCounts, setActiveInning, recommitInning, markPitcherRemoved, setGameLineup
 });
 
 </script>
