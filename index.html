@@ -1124,8 +1124,8 @@ function renderLineupTab() {
     +'<div class="btn-row">'
     +'<button class="btn btn-navy" onclick="autoAssign()">⚡ Auto-Assign</button>'
     +(isCommitted
-      ? '<button class="btn btn-red" onclick="recommitInning()" '+(ready?'':'disabled')+'>↺ Re-commit</button>'
-      : '<button class="btn btn-red" onclick="setGameLineup()" '+(ready?'':'disabled')+'>✓ Set Game Lineup</button>')
+      ? '<button class="btn btn-red" onclick="recommitInning()" '+(ready?'':'disabled')+'>↺ Re-commit Inning</button>'
+      : '<button class="btn btn-red" onclick="setGameLineup()" '+(ready?'':'disabled')+'>✓ Commit Inning</button>')
     +'</div></div>'
     +'<div class="two-col"><div><div class="label">Field Positions — Inning '+state.activeInning+'</div>';
 
