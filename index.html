@@ -843,56 +843,165 @@ function recommitInning() {
   commitInning();
 }
 
-// ── VALIDATE LINEUP ───────────────────────────────────────────────────────────
-function validateLineup() {
+// ── VALIDATE FULL GAME ────────────────────────────────────────────────────────
+function setGameLineup() {
   const errors = [];
   const warnings = [];
 
-  // Check all positions filled
-  POSITIONS.forEach(pos => {
-    if (!state.lineup[pos]) errors.push(pos+' is not filled');
-  });
+  const committedInnings = state.history.filter(h => h.game === state.game).sort((a,b) => a.inning - b.inning);
 
-  // Check each assigned player
-  Object.entries(state.lineup).forEach(([pos, player]) => {
-    const pref = state.prefs[player]?.[pos] || "neutral";
-
-    // Avoid violation
-    if (pref === "avoid") errors.push(player+' has ✗ Avoid set for '+pos);
-
-    // Pitcher rules
-    if (pos === 'P') {
-      if (isRemovedPitcher(player)) errors.push(player+' was already removed from the mound this game');
-      const caught = getCatcherInnings(player);
-      if (caught >= 4) errors.push(player+' caught '+caught+' innings — ineligible to pitch today');
-      const lastGameNum = state.game - 1;
-      const lastGameHistory = state.history.filter(h => h.game === lastGameNum);
-      const pitchedLastGame = new Set(lastGameHistory.map(h => h.lineup?.['P']).filter(Boolean));
-      if (pitchedLastGame.has(player)) warnings.push(player+' pitched last game');
-      const pitches = getPitches(player);
-      const limit = getPitchLimit();
-      if (pitches >= limit) errors.push(player+' has reached the pitch limit ('+pitches+'/'+limit+')');
-      else if (pitches >= limit * 0.8) warnings.push(player+' is near the pitch limit ('+pitches+'/'+limit+')');
-    }
-
-    // Catcher rules
-    if (pos === 'C') {
-      if (!catcherEligibility(player).eligible) errors.push(player+' threw 41+ pitches — ineligible for catcher');
-    }
-  });
-
-  return { errors, warnings };
-}
-
-function setGameLineup() {
-  const { errors, warnings } = validateLineup();
-  if (errors.length === 0 && warnings.length === 0) {
-    showModal("LINEUP CHECK", "All good — no issues found with this lineup.", "OK", closeModal, "btn-green");
-    // Override the confirm button to just close
-    const btn = document.getElementById("modal-confirm-btn");
-    btn.onclick = closeModal;
+  if (committedInnings.length === 0) {
+    showModal("LINEUP CHECK", "No innings committed yet for this game.", "OK", closeModal, "btn-cancel");
+    document.getElementById("modal-confirm-btn").onclick = closeModal;
     return;
   }
+
+  const INFIELD  = ["P","C","1B","2B","3B","SS"];
+  const OUTFIELD = ["LF","CF","RF"];
+
+  // Build per-player tracking across the game
+  const positionCounts   = {}; // how many times each player played each pos
+  const infieldCount     = {};
+  const outfieldCount    = {};
+  const benchCount       = {};
+  const pitchedInnings   = {}; // innings where player pitched
+  const catcherInnings   = {}; // innings where player caught
+  const removedPitchers  = new Set(
+    Object.keys(state.removedPitchers)
+      .filter(k => k.startsWith(state.game + '_'))
+      .map(k => k.replace(state.game + '_', ''))
+  );
+
+  state.players.forEach(p => {
+    positionCounts[p] = {}; infieldCount[p] = 0; outfieldCount[p] = 0;
+    benchCount[p] = 0; pitchedInnings[p] = []; catcherInnings[p] = [];
+  });
+
+  committedInnings.forEach(h => {
+    Object.entries(h.lineup || {}).forEach(([pos, player]) => {
+      if (!positionCounts[player]) return;
+      positionCounts[player][pos] = (positionCounts[player][pos] || 0) + 1;
+      if (INFIELD.includes(pos))  infieldCount[player]++;
+      if (OUTFIELD.includes(pos)) outfieldCount[player]++;
+      if (pos === 'P') pitchedInnings[player].push(h.inning);
+      if (pos === 'C') catcherInnings[player].push(h.inning);
+    });
+    (h.bench || []).forEach(p => { if (benchCount[p] !== undefined) benchCount[p]++; });
+  });
+
+  const numInnings = committedInnings.length;
+
+  // Last game pitchers
+  const lastGameNum = state.game - 1;
+  const pitchedLastGame = new Set(
+    state.history.filter(h => h.game === lastGameNum).map(h => h.lineup?.['P']).filter(Boolean)
+  );
+
+  // ── RULE CHECKS ──────────────────────────────────────────────────────────
+
+  state.players.forEach(player => {
+    // Pitched more than once this game
+    if (pitchedInnings[player].length > 1) {
+      warnings.push(player+' pitched '+pitchedInnings[player].length+' innings (innings '+pitchedInnings[player].join(', ')+')');
+    }
+
+    // Pitched last game
+    if (pitchedLastGame.has(player) && pitchedInnings[player].length > 0) {
+      warnings.push(player+' pitched last game and is pitching again this game');
+    }
+
+    // Removed pitcher re-assigned
+    if (removedPitchers.has(player) && pitchedInnings[player].length > 0) {
+      errors.push(player+' was removed from the mound but pitched again (innings '+pitchedInnings[player].join(', ')+')');
+    }
+
+    // Caught 4+ innings then pitched
+    if (catcherInnings[player].length >= 4 && pitchedInnings[player].length > 0) {
+      const caughtBefore = catcherInnings[player].filter(i => Math.min(...pitchedInnings[player]) > i);
+      if (caughtBefore.length >= 4) {
+        errors.push(player+' caught 4+ innings then pitched — ineligible');
+      }
+    }
+
+    // Pitched 41+ then caught
+    const pitches = getPitches(player);
+    if (pitches >= 41 && catcherInnings[player].length > 0) {
+      errors.push(player+' threw '+pitches+' pitches and played catcher — ineligible after 41+ pitches');
+    }
+
+    // Pitch limit
+    const limit = getPitchLimit();
+    if (pitches > limit) {
+      errors.push(player+' exceeded pitch limit ('+pitches+'/'+limit+')');
+    } else if (pitches >= limit * 0.8) {
+      warnings.push(player+' is near the pitch limit ('+pitches+'/'+limit+')');
+    }
+
+    // Avoid preference violated
+    Object.entries(positionCounts[player]).forEach(([pos, count]) => {
+      const pref = state.prefs[player]?.[pos] || "neutral";
+      if (pref === "avoid" && count > 0) {
+        errors.push(player+' has ✗ Avoid for '+pos+' but played it '+count+' time'+(count>1?'s':''));
+      }
+    });
+
+    // Same position played more than twice
+    Object.entries(positionCounts[player]).forEach(([pos, count]) => {
+      if (count >= 3) {
+        warnings.push(player+' played '+pos+' '+count+' times this game');
+      }
+    });
+
+    // Same position two innings in a row
+    for (let i = 0; i < committedInnings.length - 1; i++) {
+      const posA = Object.entries(committedInnings[i].lineup||{}).find(([,p])=>p===player)?.[0];
+      const posB = Object.entries(committedInnings[i+1].lineup||{}).find(([,p])=>p===player)?.[0];
+      if (posA && posB && posA === posB) {
+        warnings.push(player+' played '+posA+' two innings in a row (innings '+committedInnings[i].inning+' & '+committedInnings[i+1].inning+')');
+      }
+    }
+
+    // Infield or outfield two innings in a row
+    for (let i = 0; i < committedInnings.length - 1; i++) {
+      const posA = Object.entries(committedInnings[i].lineup||{}).find(([,p])=>p===player)?.[0];
+      const posB = Object.entries(committedInnings[i+1].lineup||{}).find(([,p])=>p===player)?.[0];
+      if (posA && posB) {
+        const bothInfield  = INFIELD.includes(posA)  && INFIELD.includes(posB);
+        const bothOutfield = OUTFIELD.includes(posA) && OUTFIELD.includes(posB);
+        if (bothInfield)  warnings.push(player+' played infield two innings in a row (innings '+committedInnings[i].inning+' & '+committedInnings[i+1].inning+')');
+        if (bothOutfield) warnings.push(player+' played outfield two innings in a row (innings '+committedInnings[i].inning+' & '+committedInnings[i+1].inning+')');
+      }
+    }
+
+    // Heavy outfield load (all outfield, no infield)
+    if (numInnings >= 3 && infieldCount[player] === 0 && outfieldCount[player] >= 2) {
+      warnings.push(player+' has only played outfield this game ('+outfieldCount[player]+' innings)');
+    }
+
+    // Excessive bench time
+    if (benchCount[player] >= 3) {
+      warnings.push(player+' has sat on the bench '+benchCount[player]+' innings');
+    }
+  });
+
+  // Any position unfilled in any inning
+  committedInnings.forEach(h => {
+    const unfilled = POSITIONS.filter(pos => !h.lineup?.[pos]);
+    if (unfilled.length > 0) {
+      errors.push('Inning '+h.inning+' is missing: '+unfilled.join(', '));
+    }
+  });
+
+  // Show results
+  if (errors.length === 0 && warnings.length === 0) {
+    document.getElementById("modal-title").textContent = "LINEUP CHECK";
+    document.getElementById("modal-msg").innerHTML = '<div style="text-align:center;padding:16px"><div style="font-size:32px;margin-bottom:8px">✓</div><div style="color:#22c55e;font-size:14px;font-weight:700;letter-spacing:1px">All '+numInnings+' innings look good!</div><div style="color:#666;font-size:12px;margin-top:6px">No rule violations found.</div></div>';
+    const btn = document.getElementById("modal-confirm-btn");
+    btn.textContent = "OK"; btn.className = "btn btn-green"; btn.onclick = closeModal;
+    document.getElementById("modal-overlay").style.display = "flex";
+    return;
+  }
+
   showValidationModal(errors, warnings);
 }
 
