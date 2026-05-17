@@ -1122,13 +1122,10 @@ function renderLineupTab() {
     +'<div class="btn-row">'
     +'<button class="btn btn-navy" onclick="autoAssign()">⚡ Auto-Assign</button>'
     +'<button class="btn btn-cancel" style="font-size:10px;padding:8px 12px" onclick="setGameLineup()">⚑ Check Lineup</button>'
-    +(isCommitted
-      ? '<button class="btn btn-red" onclick="recommitInning()" '+(ready?'':'disabled')+'>↺ Re-commit Inning</button>'
-      : '<button class="btn btn-red" onclick="commitInning()" '+(ready?'':'disabled')+'>✓ Commit Inning</button>')
+    +'<button class="btn btn-red" onclick="commitInning()" '+(ready?'':'disabled')+'>✓ Commit Inning</button>'
+    +(isCommitted?'<button class="btn btn-cancel" onclick="recommitInning()" '+(ready?'':'disabled')+'>↺ Re-commit</button>':'')
     +'</div></div>'
     +'<div class="two-col"><div><div class="label">Field Positions — Inning '+state.activeInning+'</div>';
-
-  POSITIONS.forEach(pos=>{
     const player=state.lineup[pos]||"";
     const pref=player?(state.prefs[player]?.[pos]||"neutral"):"neutral";
     const isPreferred=pref==="preferred", isAvoid=pref==="avoid";
