@@ -414,12 +414,12 @@
   <div class="tabs">
     <button class="tab-btn active" onclick="showTab('lineup')">⚾ Lineup</button>
     <button class="tab-btn" onclick="showTab('quick')">Inning View</button>
-    <button class="tab-btn" onclick="showTab('pitches')">Pitches</button>
-    <button class="tab-btn" onclick="showTab('batting')">Batting</button>
+    <button class="tab-btn" onclick="showTab('pitches')">Pitch Count</button>
+    <button class="tab-btn" onclick="showTab('batting')">Batting Order</button>
     <button class="tab-btn" onclick="showTab('prefs')">Prefs</button>
-    <button class="tab-btn" onclick="showTab('stats')">Stats</button>
-    <button class="tab-btn" onclick="showTab('history')">History</button>
-    <button class="tab-btn" onclick="showTab('diamond')">Diamond</button>
+    <button class="tab-btn" onclick="showTab('stats')">Position Count</button>
+    <button class="tab-btn" onclick="showTab('history')">Lineup History</button>
+    <button class="tab-btn" onclick="showTab('diamond')">Lineup Card</button>
   </div>
 </div>
 
@@ -753,14 +753,28 @@ function autoAssign() {
     });
   });
 
+  // ── WHO SAT LAST INNING ───────────────────────────────────────────────────
+  const lastInningNum = state.inning - 1;
+  const lastInningEntry = state.history.find(h => h.game === state.game && h.inning === lastInningNum);
+  const satLastInning = new Set(lastInningEntry?.bench || []);
+
   // ── SCORE FUNCTION ────────────────────────────────────────────────────────
+  function isEligible(player, pos) {
+    const pref = state.prefs[player]?.[pos] || "neutral";
+    if (pref === "avoid") return false;
+    if (pos === 'P' && pitchedLastGame.has(player)) return false;
+    if (pos === 'P' && isRemovedPitcher(player)) return false;
+    if (pos === 'P' && getCatcherInnings(player) >= 4) return false;
+    if (pos === 'C' && !catcherEligibility(player).eligible) return false;
+    return true;
+  }
+
   function score(player, pos) {
     let s = 0;
 
-    // Preference
+    // Preferred = strong priority bonus
     const pref = state.prefs[player]?.[pos] || "neutral";
-    if (pref === "preferred") s += 15;
-    if (pref === "avoid")     s -= 25;
+    if (pref === "preferred") s += 60;
 
     // Already played this position this game — heavy penalty
     if (playedThisGame[player].has(pos)) s -= 40;
@@ -770,51 +784,51 @@ function autoAssign() {
 
     // Bench equity — more bench time = higher priority for field
     s += (benchTotal[player] || 0) * 2;
-    s += (recentBench[player] || 0) * 4; // extra weight for recent sitting
+    s += (recentBench[player] || 0) * 4;
 
     // Don't let players who played a lot this game hog spots
     s -= (thisGameInnings[player] || 0) * 2;
 
-    // Infield / outfield balance — push players toward the zone they've had less of
+    // Sat last inning — strong infield priority, heavy outfield penalty
+    if (satLastInning.has(player)) {
+      if (INFIELD.includes(pos))  s += 50;
+      if (OUTFIELD.includes(pos)) s -= 50;
+    }
+
+    // Infield / outfield balance
     if (INFIELD.includes(pos)) {
       const imbalance = infieldCount[player] - outfieldCount[player];
-      s -= imbalance * 3; // too much infield = penalty for infield spots
+      s -= imbalance * 3;
     }
     if (OUTFIELD.includes(pos)) {
       const imbalance = outfieldCount[player] - infieldCount[player];
-      s -= imbalance * 3; // too much outfield = penalty for outfield spots
+      s -= imbalance * 3;
     }
 
-    // No pitcher who pitched last game
+    // No pitcher from last game
     if (pos === 'P' && pitchedLastGame.has(player)) s -= 60;
-
-    // Pitcher eligibility rules
-    if (pos === 'P' && isRemovedPitcher(player)) s -= 100;
-    if (pos === 'P') {
-      const caught = getCatcherInnings(player);
-      if (caught >= 4) s -= 100;
-    }
-    // Catcher eligibility
-    if (pos === 'C' && !catcherEligibility(player).eligible) s -= 100;
 
     return s;
   }
 
   // ── GREEDY ASSIGNMENT ─────────────────────────────────────────────────────
-  // Fill positions with fewest viable options first (hardest constraints first)
+  // Filter candidates to eligible only — avoid is a hard elimination
+  // Fill positions with fewest eligible players first (hardest to fill goes first)
   const lineup  = {};
   const assigned = new Set();
 
   const posOrder = [...POSITIONS].sort((a, b) => {
-    const aOpts = available.filter(p => score(p, a) > -50).length;
-    const bOpts = available.filter(p => score(p, b) > -50).length;
+    const aOpts = available.filter(p => isEligible(p, a)).length;
+    const bOpts = available.filter(p => isEligible(p, b)).length;
     return aOpts - bOpts;
   });
 
   posOrder.forEach(pos => {
-    const best = available
-      .filter(p => !assigned.has(p))
-      .sort((a, b) => score(b, pos) - score(a, pos))[0];
+    // Only consider eligible (non-avoid) players
+    let candidates = available.filter(p => !assigned.has(p) && isEligible(p, pos));
+    // Fallback: if no eligible player, allow any unassigned (avoids breaking the lineup)
+    if (candidates.length === 0) candidates = available.filter(p => !assigned.has(p));
+    const best = candidates.sort((a, b) => score(b, pos) - score(a, pos))[0];
     if (best) { lineup[pos] = best; assigned.add(best); }
   });
 
