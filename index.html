@@ -1043,11 +1043,12 @@ function commitInning() {
   const assigned=Object.values(state.lineup);
   const bench=state.players.filter(p=>!assigned.includes(p) && !state.absent.includes(p));
   const absent=[...state.absent];
+  const committingInning = state.activeInning;
 
   // Check if re-committing an existing inning
-  const existingIdx = state.history.findIndex(h => h.game === state.game && h.inning === state.activeInning);
+  const existingIdx = state.history.findIndex(h => h.game === state.game && h.inning === committingInning);
   if (existingIdx >= 0) {
-    state.history[existingIdx] = {game:state.game,inning:state.activeInning,lineup:{...state.lineup},bench:[...bench],absent:[...absent]};
+    state.history[existingIdx] = {game:state.game,inning:committingInning,lineup:{...state.lineup},bench:[...bench],absent:[...absent]};
     recalcStatsFromHistory();
   } else {
     Object.entries(state.lineup).forEach(([pos,p])=>{
@@ -1058,19 +1059,19 @@ function commitInning() {
       if(!state.counts[p]) state.counts[p]={};
       state.counts[p].bench=(state.counts[p].bench||0)+1;
     });
-    state.history.push({game:state.game,inning:state.activeInning,lineup:{...state.lineup},bench:[...bench],absent:[...absent]});
-    // Advance inning pointer if we committed the next sequential inning
-    if (state.activeInning === state.inning) {
-      state.inning++;
-      state.activeInning = state.inning;
+    state.history.push({game:state.game,inning:committingInning,lineup:{...state.lineup},bench:[...bench],absent:[...absent]});
+    // Advance the inning pointer if we committed the next sequential inning
+    if (committingInning >= state.inning) {
+      state.inning = committingInning + 1;
     }
   }
 
-  // Clear the draft for this inning
-  delete state.draftLineups[state.activeInning - (state.activeInning === state.inning ? 1 : 0)];
-  state.lineup = state.draftLineups[state.activeInning] ? {...state.draftLineups[state.activeInning]} : {};
+  // Clear draft for this inning, stay on it so dropdowns remain visible
+  delete state.draftLineups[committingInning];
+  // Keep lineup populated from what was just committed so UI stays intact
+  // activeInning stays on the inning we just committed
 
-  saveState(); showToast("Inning "+state.activeInning+" set ✓"); render();
+  saveState(); showToast("Inning "+committingInning+" committed ✓"); render();
 }
 
 function setActiveInning(n) {
