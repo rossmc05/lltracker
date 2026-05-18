@@ -1386,13 +1386,59 @@ function allGamesCounts() {
   return merged;
 }
 
-function renderStatsTab() {
-  const allCounts=allGamesCounts();
-  const totalAll=p=>POSITIONS.reduce((s,pos)=>s+(allCounts[p]?.[pos]||0),0);
-  const maxInn=Math.max(...state.players.map(totalAll),1);
+let statsSelectedGame = 'all';
 
-  let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">'
-    +'<div class="label" style="margin:0;border:none">All Games — '+state.game+' game(s) · '+state.history.length+' inning(s)</div>'
+function getGameCounts(gameNum) {
+  // Returns counts for a specific game only
+  const merged = {};
+  state.players.forEach(p => {
+    merged[p] = { bench: 0 };
+    POSITIONS.forEach(pos => { merged[p][pos] = 0; });
+    if (gameNum === state.game) {
+      POSITIONS.forEach(pos => { merged[p][pos] += state.counts[p]?.[pos] || 0; });
+      merged[p].bench += state.counts[p]?.bench || 0;
+    } else {
+      const g = state.games.find(g => g.game === gameNum);
+      if (g?.counts?.[p]) {
+        POSITIONS.forEach(pos => { merged[p][pos] += g.counts[p][pos] || 0; });
+        merged[p].bench += g.counts[p].bench || 0;
+      }
+    }
+    // Absent counts as 1 bench per game missed
+    const absentThisGame = state.history.some(h => h.game === gameNum && (h.absent||[]).includes(p));
+    if (absentThisGame) merged[p].bench += 1;
+  });
+  return merged;
+}
+
+function setStatsGame(val) {
+  statsSelectedGame = val === 'all' ? 'all' : parseInt(val);
+  renderStatsTab();
+}
+
+function renderStatsTab() {
+  const isAll = statsSelectedGame === 'all';
+  const counts = isAll ? allGamesCounts() : getGameCounts(statsSelectedGame);
+  const totalFor = p => POSITIONS.reduce((s,pos) => s+(counts[p]?.[pos]||0), 0);
+  const maxInn = Math.max(...state.players.map(totalFor), 1);
+
+  // Build game options
+  const allGameNums = [...new Set(state.history.map(h=>h.game))].sort((a,b)=>a-b);
+  let gameOpts = '<option value="all" '+(isAll?'selected':'')+'>All Games</option>';
+  allGameNums.forEach(g => {
+    const info = state.gameInfo?.[g] || {};
+    const label = 'Game '+g+(info.opponent?' vs. '+info.opponent:'')+(info.date?' · '+new Date(info.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'');
+    gameOpts += '<option value="'+g+'" '+(statsSelectedGame===g?'selected':'')+'>'+label+'</option>';
+  });
+
+  const inningCount = isAll ? state.history.length : state.history.filter(h=>h.game===statsSelectedGame).length;
+  const label = isAll ? 'All Games — '+state.game+' game(s) · '+inningCount+' inning(s)' : 'Game '+statsSelectedGame+' — '+inningCount+' inning(s)';
+
+  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">'
+    +'<div>'
+    +'<select onchange="setStatsGame(this.value)" style="background:#1c1c1e;border:1px solid #444;color:#F5F0E8;border-radius:3px;padding:7px 10px;font-family:\'Helvetica Neue\',Arial,sans-serif;font-size:13px;cursor:pointer;margin-bottom:4px">'+gameOpts+'</select>'
+    +'<div class="label" style="margin:0;border:none;margin-top:4px">'+label+'</div>'
+    +'</div>'
     +'<button class="btn btn-red" onclick="resetAll()">↺ Reset All</button></div>'
     +'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table><thead><tr>'
     +'<th class="player-col">Player</th>';
@@ -1400,10 +1446,10 @@ function renderStatsTab() {
   html+='<th style="color:#999">Bench</th><th style="color:#E81828">Total</th></tr></thead><tbody>';
 
   state.players.forEach(player=>{
-    const total=totalAll(player);
+    const total=totalFor(player);
     html+='<tr><td class="player-col">'+player+'</td>';
     POSITIONS.forEach(pos=>{
-      const count=allCounts[player]?.[pos]||0;
+      const count=counts[player]?.[pos]||0;
       const pref=state.prefs[player]?.[pos]||"neutral";
       if(!count){ html+='<td><span style="color:#444">—</span></td>'; return; }
       const bg=pref==="preferred"?"#5a0910":pref==="avoid"?"#222":"#001540";
@@ -1411,7 +1457,7 @@ function renderStatsTab() {
       html+='<td><span class="stat-badge" style="background:'+bg+';color:'+c+'">'+count+'</span></td>';
     });
     const pct=Math.round((total/maxInn)*100);
-    html+='<td style="text-align:center"><span style="color:#888;font-size:12px">'+(allCounts[player]?.bench||0)+'</span></td>'
+    html+='<td style="text-align:center"><span style="color:#888;font-size:12px">'+(counts[player]?.bench||0)+'</span></td>'
       +'<td style="text-align:center"><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div>'
       +'<span style="color:#E81828;font-weight:700;margin-left:6px">'+total+'</span></td></tr>';
   });
@@ -2213,7 +2259,7 @@ Object.assign(window, {
   moveBatter, setBatterAtSlot, commitBattingOrder, editBattingOrder,
   openEditInning, closeEditModal, saveEditedInning, closeModal,
   setDiamondGame, setDiamondInning, exportGamePDF,
-  addPitch, setAgeGroup, resetPitchCounts, setActiveInning, recommitInning, markPitcherRemoved, setGameLineup
+  addPitch, setAgeGroup, resetPitchCounts, setActiveInning, recommitInning, markPitcherRemoved, setGameLineup, setStatsGame
 });
 
 </script>
