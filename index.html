@@ -1583,6 +1583,8 @@ function deleteInning(historyIdx) {
     'btn-red'
   );
 }
+
+function renderHistoryTab() {
   const allGames=[...new Set(state.history.map(h=>h.game))].sort((a,b)=>b-a);
   let html='<div class="label">'+state.history.length+' inning(s) across '+allGames.length+' game(s)</div>';
   if(!state.history.length){
