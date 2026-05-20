@@ -1562,7 +1562,27 @@ function saveEditedInning() {
 }
 
 // ── RENDER HISTORY ────────────────────────────────────────────────────────────
-function renderHistoryTab() {
+function deleteInning(historyIdx) {
+  const entry = state.history[historyIdx];
+  showModal(
+    'DELETE INNING',
+    'Delete Game '+entry.game+' — Inning '+entry.inning+'? Stats will be recalculated.',
+    'Delete',
+    () => {
+      state.history.splice(historyIdx, 1);
+      // If we deleted an inning from the current game, update the inning pointer
+      const currentGameInnings = state.history.filter(h => h.game === state.game).map(h => h.inning);
+      const maxInning = currentGameInnings.length ? Math.max(...currentGameInnings) : 0;
+      if (state.inning > maxInning + 1) state.inning = maxInning + 1;
+      if (state.activeInning > state.inning) state.activeInning = state.inning;
+      recalcStatsFromHistory();
+      saveState();
+      showToast('Inning deleted');
+      render();
+    },
+    'btn-red'
+  );
+}
   const allGames=[...new Set(state.history.map(h=>h.game))].sort((a,b)=>b-a);
   let html='<div class="label">'+state.history.length+' inning(s) across '+allGames.length+' game(s)</div>';
   if(!state.history.length){
@@ -1584,8 +1604,10 @@ function renderHistoryTab() {
         html+='<div class="inning-card">'
           +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
           +'<div class="inning-title" style="margin:0">INNING '+inning+'</div>'
+          +'<div style="display:flex;gap:6px">'
           +'<button class="btn btn-navy" style="font-size:10px;padding:5px 12px" onclick="openEditInning('+_idx+')">✎ Edit</button>'
-          +'</div><div class="pos-chips">';
+          +'<button class="btn btn-red" style="font-size:10px;padding:5px 10px" onclick="deleteInning('+_idx+')">✕ Delete</button>'
+          +'</div></div><div class="pos-chips">';
 
         POSITIONS.forEach(pos=>{
           const player=lineup[pos];
@@ -2259,7 +2281,7 @@ Object.assign(window, {
   moveBatter, setBatterAtSlot, commitBattingOrder, editBattingOrder,
   openEditInning, closeEditModal, saveEditedInning, closeModal,
   setDiamondGame, setDiamondInning, exportGamePDF,
-  addPitch, setAgeGroup, resetPitchCounts, setActiveInning, recommitInning, markPitcherRemoved, setGameLineup, setStatsGame
+  addPitch, setAgeGroup, resetPitchCounts, setActiveInning, recommitInning, markPitcherRemoved, setGameLineup, setStatsGame, deleteInning
 });
 
 </script>
